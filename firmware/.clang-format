@@ -1,0 +1,12 @@
+{
+    BasedOnStyle: LLVM,
+    AlignArrayOfStructures: Left,
+    AlignConsecutiveMacros: {
+        Enabled: true,
+        AcrossEmptyLines: false,
+        AcrossComments: true
+    },
+    BracedInitializerIndentWidth: 2,
+    PenaltyExcessCharacter: 0,
+    ReflowComments: false
+}
