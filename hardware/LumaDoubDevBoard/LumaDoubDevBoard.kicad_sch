@@ -493,7 +493,7 @@
 						(type default)
 					)
 					(fill
-						(type none)
+						(type outline)
 					)
 				)
 				(arc
@@ -505,7 +505,7 @@
 						(type default)
 					)
 					(fill
-						(type outline)
+						(type none)
 					)
 				)
 				(arc
@@ -541,7 +541,7 @@
 						(type default)
 					)
 					(fill
-						(type outline)
+						(type none)
 					)
 				)
 				(arc
@@ -553,7 +553,7 @@
 						(type default)
 					)
 					(fill
-						(type none)
+						(type outline)
 					)
 				)
 				(polyline
@@ -615,17 +615,6 @@
 						(type none)
 					)
 				)
-				(circle
-					(center 0 -5.842)
-					(radius 1.27)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
-					)
-				)
 				(polyline
 					(pts
 						(xy 0 -5.842) (xy 0 4.318)
@@ -636,6 +625,17 @@
 					)
 					(fill
 						(type none)
+					)
+				)
+				(circle
+					(center 0 -5.842)
+					(radius 1.27)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
 					)
 				)
 				(rectangle
@@ -8408,9 +8408,9 @@
 		)
 		(uuid "6c0c6dfe-d4fe-4a6f-ac6a-1384efa4b20f")
 	)
-	(text "Part operates in\nauto PSM for\nbetter efficiency\nat low current"
+	(text "Forced-PWM mode\nfor lower ripple"
 		(exclude_from_sim no)
-		(at 86.868 482.092 0)
+		(at 86.868 479.552 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -8917,6 +8917,12 @@
 		(diameter 0)
 		(color 0 0 0 0)
 		(uuid "75741066-5c90-4b44-af75-cc7fdd9f8ca4")
+	)
+	(junction
+		(at 71.12 471.17)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "7a30f863-a563-42cf-920e-752fac8c9fdb")
 	)
 	(junction
 		(at 187.96 467.36)
@@ -10044,6 +10050,16 @@
 	)
 	(wire
 		(pts
+			(xy 71.12 473.71) (xy 71.12 471.17)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "2655d8b4-b726-44d8-a5fb-6bfc4e8ff48b")
+	)
+	(wire
+		(pts
 			(xy 306.07 544.83) (xy 308.61 544.83)
 		)
 		(stroke
@@ -10131,16 +10147,6 @@
 			(type default)
 		)
 		(uuid "2d1e0be2-9b76-42e8-8fa6-6b26f01fddac")
-	)
-	(wire
-		(pts
-			(xy 73.66 473.71) (xy 71.12 473.71)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "2e1f3475-8740-4858-8da7-eb78e39ef0d9")
 	)
 	(wire
 		(pts
@@ -10261,16 +10267,6 @@
 			(type default)
 		)
 		(uuid "33313497-8737-45a7-8734-3705c46c8ddc")
-	)
-	(wire
-		(pts
-			(xy 71.12 473.71) (xy 71.12 476.25)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "34ddbe70-645c-4766-b546-15fe62a64f9c")
 	)
 	(wire
 		(pts
@@ -10491,6 +10487,16 @@
 			(type default)
 		)
 		(uuid "44997a90-6e18-4f54-bff8-f2e18c33e23d")
+	)
+	(wire
+		(pts
+			(xy 73.66 473.71) (xy 71.12 473.71)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "4721d4f1-5c8d-4997-af76-d97292356715")
 	)
 	(wire
 		(pts
@@ -19301,72 +19307,6 @@
 			(project "LumaDoubDevBoard"
 				(path "/22b97ae5-fe59-4d93-94b6-97d72fa5acf6"
 					(reference "R14")
-					(unit 1)
-				)
-			)
-		)
-	)
-	(symbol
-		(lib_id "power:GND")
-		(at 71.12 476.25 0)
-		(unit 1)
-		(exclude_from_sim no)
-		(in_bom yes)
-		(on_board yes)
-		(dnp no)
-		(fields_autoplaced yes)
-		(uuid "1b4ea7b7-3113-4e0a-97c4-f466b725518e")
-		(property "Reference" "#PWR0116"
-			(at 71.12 482.6 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Value" "GND"
-			(at 71.12 481.33 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-			)
-		)
-		(property "Footprint" ""
-			(at 71.12 476.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Datasheet" ""
-			(at 71.12 476.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
-			(at 71.12 476.25 0)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(hide yes)
-			)
-		)
-		(pin "1"
-			(uuid "eb0515cd-5fa8-4277-a994-ec0e3d29d2df")
-		)
-		(instances
-			(project "LumaDoubDevBoard"
-				(path "/22b97ae5-fe59-4d93-94b6-97d72fa5acf6"
-					(reference "#PWR0116")
 					(unit 1)
 				)
 			)
