@@ -2344,9 +2344,15 @@
     (effects (font (size 1.7 1.7)) (justify left bottom))
     (uuid 3faa9ca4-06cd-481d-94a1-185771181dec)
   )
-  (text "Connected to Pico" (at 132.0546 188.468 0)
+  (text "PSU Recommended Specs\nDVDDIO	= 3.3v, 20ma\nDVDD 	= 1.8v, 110ma\nAVDD	= 1.8v, 100ma\nPVDD	= 1.8v, 20ma\n		  .48w Total"
+    (at 43.0022 58.674 0)
     (effects (font (size 1.27 1.27)) (justify left bottom))
-    (uuid 5f0df0b2-86f7-4688-ad82-e9f8b10ca4f9)
+    (uuid 636f41f1-acdf-48d6-b420-fd6b44c42d54)
+  )
+  (text "PSU Recommended Specs\nVDD		= 1.8v, 68ma	101max \nVDD_IO 	= 3.3v, 1ma		 10max\nAVDD	= 1.8v, 100ma\nPVDD	= 1.8v, 20ma\n		  .48w Total"
+    (at 255.3208 45.3898 0)
+    (effects (font (size 1.27 1.27)) (justify left bottom))
+    (uuid 76f3ba82-f29b-461d-b2b5-e20c2756f3e8)
   )
   (text "2 caps for pin 5\n2 caps for pin 28" (at 201.7776 50.2666 0)
     (effects (font (size 0.8 0.8)) (justify left bottom))
