@@ -541,7 +541,7 @@
 						(type default)
 					)
 					(fill
-						(type none)
+						(type outline)
 					)
 				)
 				(arc
@@ -553,7 +553,7 @@
 						(type default)
 					)
 					(fill
-						(type outline)
+						(type none)
 					)
 				)
 				(polyline
@@ -8507,9 +8507,22 @@
 		)
 		(uuid "a0d63583-33b9-4b78-8062-03257f6a169a")
 	)
+	(text "Current sense\nI = V x 0.1"
+		(exclude_from_sim no)
+		(at 185.674 356.616 0)
+		(effects
+			(font
+				(size 0.762 0.762)
+				(thickness 0.254)
+				(bold yes)
+				(color 0 255 255 1)
+			)
+		)
+		(uuid "a571d153-32ed-49e8-8678-a4d14a9bc4a3")
+	)
 	(text "Muxed power output\n(USB or battery)\nUSB has priority"
 		(exclude_from_sim no)
-		(at 180.086 367.792 0)
+		(at 205.486 357.632 0)
 		(effects
 			(font
 				(size 1.27 1.27)
@@ -9700,6 +9713,16 @@
 	)
 	(wire
 		(pts
+			(xy 180.34 365.76) (xy 176.53 365.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "10dc11e7-3078-4b94-83b3-8933d07cb7c6")
+	)
+	(wire
+		(pts
 			(xy 266.7 461.01) (xy 266.7 459.74)
 		)
 		(stroke
@@ -10340,16 +10363,6 @@
 	)
 	(wire
 		(pts
-			(xy 176.53 369.57) (xy 176.53 388.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "38ff2d9f-40e7-4b75-ac5a-af12e97d528a")
-	)
-	(wire
-		(pts
 			(xy 394.97 86.36) (xy 394.97 85.09)
 		)
 		(stroke
@@ -10690,6 +10703,16 @@
 	)
 	(wire
 		(pts
+			(xy 176.53 365.76) (xy 176.53 388.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "506e4820-328f-4617-b444-a74e563f862e")
+	)
+	(wire
+		(pts
 			(xy 370.84 100.33) (xy 370.84 69.85)
 		)
 		(stroke
@@ -10750,6 +10773,16 @@
 	)
 	(wire
 		(pts
+			(xy 176.53 388.62) (xy 172.72 388.62)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "52ff5edb-3e5c-46e0-a18b-8626ad98cd07")
+	)
+	(wire
+		(pts
 			(xy 302.26 506.73) (xy 306.07 506.73)
 		)
 		(stroke
@@ -10807,16 +10840,6 @@
 			(type default)
 		)
 		(uuid "558ef55a-0322-47a1-a36a-fe0e9637d482")
-	)
-	(wire
-		(pts
-			(xy 176.53 388.62) (xy 172.72 388.62)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "55c1cdb3-15fb-404b-ba47-70578e5c02ef")
 	)
 	(wire
 		(pts
@@ -11017,6 +11040,16 @@
 			(type default)
 		)
 		(uuid "5fa029cb-cc36-432b-94da-695c5d200985")
+	)
+	(wire
+		(pts
+			(xy 201.93 365.76) (xy 190.5 365.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "602d6415-2332-42b2-8547-c10a54f764bf")
 	)
 	(wire
 		(pts
@@ -11577,6 +11610,16 @@
 			(type default)
 		)
 		(uuid "8187f561-274b-4816-b7f4-1416e486018a")
+	)
+	(wire
+		(pts
+			(xy 187.96 361.95) (xy 186.69 361.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "8225b972-71cc-4b1c-b6e3-cace63049057")
 	)
 	(wire
 		(pts
@@ -12610,6 +12653,16 @@
 	)
 	(wire
 		(pts
+			(xy 201.93 359.41) (xy 201.93 365.76)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "b8d390ee-afff-4aac-87a0-c47937818e0b")
+	)
+	(wire
+		(pts
 			(xy 471.17 109.22) (xy 471.17 114.3)
 		)
 		(stroke
@@ -13367,6 +13420,16 @@
 			(type default)
 		)
 		(uuid "e3117b22-b775-4374-ac82-0dc02058da95")
+	)
+	(wire
+		(pts
+			(xy 182.88 361.95) (xy 184.15 361.95)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "e3748c99-26fb-41dd-baf6-f0b692015fbd")
 	)
 	(wire
 		(pts
@@ -25157,6 +25220,76 @@
 		)
 	)
 	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 186.69 361.95 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "551b24a3-f1b6-4703-a915-1302a37b5116")
+		(property "Reference" "TP28"
+			(at 189.23 359.9181 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 189.23 357.3781 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm"
+			(at 181.61 361.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 181.61 361.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 186.69 361.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "4f6198f7-2afd-4ca2-bf1a-e940ee7e9d0b")
+		)
+		(instances
+			(project "LumaDoubDevBoard"
+				(path "/22b97ae5-fe59-4d93-94b6-97d72fa5acf6"
+					(reference "TP28")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
 		(lib_id "SamacSys_Parts:TPS2116DRLR")
 		(at 146.05 383.54 0)
 		(unit 1)
@@ -26679,6 +26812,80 @@
 			(project "LumaDoubDevBoard"
 				(path "/22b97ae5-fe59-4d93-94b6-97d72fa5acf6"
 					(reference "#PWR060")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Device:R_Shunt")
+		(at 185.42 365.76 270)
+		(mirror x)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(uuid "60f167cc-8ed6-427f-9235-f064415a794c")
+		(property "Reference" "R48"
+			(at 185.42 368.3 90)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+			)
+		)
+		(property "Value" "LVK12R100CER"
+			(at 185.674 370.586 90)
+			(effects
+				(font
+					(size 1.016 1.016)
+				)
+			)
+		)
+		(property "Footprint" "Resistor_SMD:R_Shunt_Ohmite_LVK12"
+			(at 185.42 367.538 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 185.42 365.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Shunt resistor"
+			(at 185.42 365.76 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "1f29981b-1408-4837-b42d-53b2b39c24d8")
+		)
+		(pin "2"
+			(uuid "ccb9b3f8-21a2-4376-8d6e-869c3d69fe99")
+		)
+		(pin "3"
+			(uuid "5a0a68f2-c189-4479-b15b-7f5988e8dfa4")
+		)
+		(pin "4"
+			(uuid "4c31c380-bc60-498d-ae5d-f9588f049143")
+		)
+		(instances
+			(project "LumaDoubDevBoard"
+				(path "/22b97ae5-fe59-4d93-94b6-97d72fa5acf6"
+					(reference "R48")
 					(unit 1)
 				)
 			)
@@ -32017,7 +32224,7 @@
 	)
 	(symbol
 		(lib_id "power:VBUS")
-		(at 176.53 369.57 0)
+		(at 201.93 359.41 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -32025,7 +32232,7 @@
 		(dnp no)
 		(uuid "9f0b077a-94e8-445c-aa98-e1e5c1b7c046")
 		(property "Reference" "#PWR052"
-			(at 176.53 373.38 0)
+			(at 201.93 363.22 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32034,7 +32241,7 @@
 			)
 		)
 		(property "Value" "VMUX"
-			(at 176.276 365.252 0)
+			(at 201.676 355.092 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32042,7 +32249,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 176.53 369.57 0)
+			(at 201.93 359.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32051,7 +32258,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 176.53 369.57 0)
+			(at 201.93 359.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -32060,7 +32267,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"VBUS\""
-			(at 176.53 369.57 0)
+			(at 201.93 359.41 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -37677,6 +37884,76 @@
 			(project "LumaDoubDevBoard"
 				(path "/22b97ae5-fe59-4d93-94b6-97d72fa5acf6"
 					(reference "#PWR069")
+					(unit 1)
+				)
+			)
+		)
+	)
+	(symbol
+		(lib_id "Connector:TestPoint")
+		(at 184.15 361.95 0)
+		(mirror y)
+		(unit 1)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(dnp no)
+		(fields_autoplaced yes)
+		(uuid "ca292ce5-d679-4f9d-8dac-ada45729ded5")
+		(property "Reference" "TP27"
+			(at 186.69 359.9181 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+		(property "Value" "TestPoint"
+			(at 186.69 357.3781 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+				(hide yes)
+			)
+		)
+		(property "Footprint" "TestPoint:TestPoint_THTPad_D1.5mm_Drill0.7mm"
+			(at 179.07 361.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 179.07 361.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "test point"
+			(at 184.15 361.95 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(pin "1"
+			(uuid "b8759d82-5bf1-4c57-9369-2d867c00e086")
+		)
+		(instances
+			(project "LumaDoubDevBoard"
+				(path "/22b97ae5-fe59-4d93-94b6-97d72fa5acf6"
+					(reference "TP27")
 					(unit 1)
 				)
 			)
