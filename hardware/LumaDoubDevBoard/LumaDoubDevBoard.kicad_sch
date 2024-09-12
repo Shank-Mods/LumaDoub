@@ -541,7 +541,7 @@
 						(type default)
 					)
 					(fill
-						(type outline)
+						(type none)
 					)
 				)
 				(arc
@@ -553,7 +553,7 @@
 						(type default)
 					)
 					(fill
-						(type none)
+						(type outline)
 					)
 				)
 				(polyline
@@ -615,6 +615,17 @@
 						(type none)
 					)
 				)
+				(circle
+					(center 0 -5.842)
+					(radius 1.27)
+					(stroke
+						(width 0)
+						(type default)
+					)
+					(fill
+						(type outline)
+					)
+				)
 				(polyline
 					(pts
 						(xy 0 -5.842) (xy 0 4.318)
@@ -625,17 +636,6 @@
 					)
 					(fill
 						(type none)
-					)
-				)
-				(circle
-					(center 0 -5.842)
-					(radius 1.27)
-					(stroke
-						(width 0)
-						(type default)
-					)
-					(fill
-						(type outline)
 					)
 				)
 				(rectangle
@@ -25315,7 +25315,7 @@
 				)
 			)
 		)
-		(property "Footprint" "SOTFL50P160X60-8N"
+		(property "Footprint" "SamacSys_Parts:SOTFL50P160X60-8N"
 			(at 175.26 478.46 0)
 			(effects
 				(font
@@ -28594,7 +28594,7 @@
 				)
 			)
 		)
-		(property "Footprint" "shinobi:2171790001_MOL_650876"
+		(property "Footprint" "SamacSys_Parts:2171790001"
 			(at 80.01 398.78 0)
 			(effects
 				(font
@@ -34372,7 +34372,7 @@
 				)
 			)
 		)
-		(property "Footprint" "SOTFL50P160X60-6N"
+		(property "Footprint" "SamacSys_Parts:SOTFL50P160X60-6N"
 			(at 212.09 562.28 0)
 			(effects
 				(font
@@ -35437,7 +35437,7 @@
 				)
 			)
 		)
-		(property "Footprint" "SOTFL50P160X60-8N"
+		(property "Footprint" "SamacSys_Parts:SOTFL50P160X60-8N"
 			(at 97.79 557.2 0)
 			(effects
 				(font
