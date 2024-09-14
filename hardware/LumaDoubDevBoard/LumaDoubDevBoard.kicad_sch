@@ -493,7 +493,7 @@
 						(type default)
 					)
 					(fill
-						(type none)
+						(type outline)
 					)
 				)
 				(arc
@@ -505,7 +505,7 @@
 						(type default)
 					)
 					(fill
-						(type outline)
+						(type none)
 					)
 				)
 				(arc
@@ -9370,6 +9370,12 @@
 		(uuid "48dcd50d-9897-4b33-90eb-fb9929123f6b")
 	)
 	(junction
+		(at 424.18 215.9)
+		(diameter 0)
+		(color 0 0 0 0)
+		(uuid "499a894a-a593-44f3-a3d0-1df439555bbf")
+	)
+	(junction
 		(at 198.12 73.66)
 		(diameter 0)
 		(color 0 0 0 0)
@@ -9966,6 +9972,16 @@
 			(type default)
 		)
 		(uuid "0479a4fe-4b85-4dd3-8217-be354c4da3a1")
+	)
+	(wire
+		(pts
+			(xy 424.18 213.36) (xy 424.18 215.9)
+		)
+		(stroke
+			(width 0)
+			(type default)
+		)
+		(uuid "0488ccbe-c6d9-4671-b688-055f2ac297aa")
 	)
 	(wire
 		(pts
@@ -11296,16 +11312,6 @@
 			(type default)
 		)
 		(uuid "5175e48a-ef05-4f46-a915-243211f9dc7b")
-	)
-	(wire
-		(pts
-			(xy 402.59 231.14) (xy 402.59 228.6)
-		)
-		(stroke
-			(width 0)
-			(type default)
-		)
-		(uuid "52292368-1c56-466b-adb3-4f598a32e3fa")
 	)
 	(wire
 		(pts
@@ -16401,28 +16407,6 @@
 			)
 		)
 	)
-	(global_label "DEBUG POWER"
-		(shape input)
-		(at 402.59 231.14 270)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify right)
-		)
-		(uuid "a7bda052-da24-435a-9695-9cb5c24259d0")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 402.59 247.8532 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify right)
-				(hide yes)
-			)
-		)
-	)
 	(global_label "VS"
 		(shape input)
 		(at 332.74 142.24 180)
@@ -16749,28 +16733,6 @@
 					(size 1.27 1.27)
 				)
 				(justify right)
-				(hide yes)
-			)
-		)
-	)
-	(global_label "DEBUG POWER"
-		(shape input)
-		(at 424.18 215.9 90)
-		(fields_autoplaced yes)
-		(effects
-			(font
-				(size 1.27 1.27)
-			)
-			(justify left)
-		)
-		(uuid "b904735e-5f97-4eb2-bb81-34bb5ddc0f41")
-		(property "Intersheetrefs" "${INTERSHEET_REFS}"
-			(at 424.18 199.1868 90)
-			(effects
-				(font
-					(size 1.27 1.27)
-				)
-				(justify left)
 				(hide yes)
 			)
 		)
@@ -21635,8 +21597,7 @@
 	)
 	(symbol
 		(lib_id "Device:R_Shunt")
-		(at 265.43 467.36 270)
-		(mirror x)
+		(at 265.43 467.36 90)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -21652,7 +21613,7 @@
 			)
 		)
 		(property "Value" "LVK12R100CER"
-			(at 265.684 472.186 90)
+			(at 265.176 472.186 90)
 			(effects
 				(font
 					(size 1.016 1.016)
@@ -29632,7 +29593,7 @@
 	)
 	(symbol
 		(lib_id "power:VBUS")
-		(at 402.59 228.6 0)
+		(at 424.18 213.36 0)
 		(unit 1)
 		(exclude_from_sim no)
 		(in_bom yes)
@@ -29640,7 +29601,7 @@
 		(dnp no)
 		(uuid "7ed90a9c-714f-4358-9a5f-2a36f9965870")
 		(property "Reference" "#PWR027"
-			(at 402.59 232.41 0)
+			(at 424.18 217.17 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29649,7 +29610,7 @@
 			)
 		)
 		(property "Value" "VMUX"
-			(at 402.336 224.282 0)
+			(at 423.926 209.042 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29657,7 +29618,7 @@
 			)
 		)
 		(property "Footprint" ""
-			(at 402.59 228.6 0)
+			(at 424.18 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29666,7 +29627,7 @@
 			)
 		)
 		(property "Datasheet" ""
-			(at 402.59 228.6 0)
+			(at 424.18 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
@@ -29675,7 +29636,7 @@
 			)
 		)
 		(property "Description" "Power symbol creates a global label with name \"VBUS\""
-			(at 402.59 228.6 0)
+			(at 424.18 213.36 0)
 			(effects
 				(font
 					(size 1.27 1.27)
