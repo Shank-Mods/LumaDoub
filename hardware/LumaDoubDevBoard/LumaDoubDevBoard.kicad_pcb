@@ -35366,7 +35366,7 @@
 	(footprint "Connector_PinHeader_2.54mm:PinHeader_2x12_P2.54mm_Vertical"
 		(layer "F.Cu")
 		(uuid "c377d912-8f7e-44e0-8078-d857e42908b6")
-		(at 99.66 50.89 90)
+		(at 99.97 55.7 90)
 		(descr "Through hole straight pin header, 2x12, 2.54mm pitch, double rows")
 		(tags "Through hole pin header THT 2x12 2.54mm double row")
 		(property "Reference" "J7"
@@ -47520,6 +47520,17 @@
 		(uuid "06babca2-5d23-4d3c-b418-0a7166938fc7")
 	)
 	(gr_rect
+		(start 74.35 -3.95)
+		(end 224.35 146.05)
+		(stroke
+			(width 0.1)
+			(type default)
+		)
+		(fill none)
+		(layer "F.SilkS")
+		(uuid "461f6965-9d3e-4894-b1c7-0e00ad4cd058")
+	)
+	(gr_rect
 		(start 97.3825 62.315)
 		(end 133.6825 83.865)
 		(stroke
@@ -47562,17 +47573,6 @@
 		(fill none)
 		(layer "Edge.Cuts")
 		(uuid "24db46a5-00ed-487f-9eb4-88deea663c0f")
-	)
-	(gr_rect
-		(start 74.35 -3.95)
-		(end 224.35 146.05)
-		(stroke
-			(width 0.1)
-			(type default)
-		)
-		(fill none)
-		(layer "Edge.Cuts")
-		(uuid "461f6965-9d3e-4894-b1c7-0e00ad4cd058")
 	)
 	(segment
 		(start 107.67 76.4525)
