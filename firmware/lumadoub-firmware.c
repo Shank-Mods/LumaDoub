@@ -10,8 +10,13 @@
 #define I2C_PORT              i2c0
 #define I2C_SDA               4
 #define I2C_SCL               5
-#define DEVICE_RESET_PIN_7280 2 // active low
-#define DEVICE_RESET_PIN_7391 3 // active low
+#define DEVICE_RESET_PIN_7280 2  // active low
+#define DEVICE_RESET_PIN_7391 3  // active low
+#define SWITCH_CVBS_IN        6  // active low
+#define SWITCH_YC_IN          7  // active low
+#define SWITCH_YPBPR_OUT      8  // active low
+#define SWITCH_CVBS_OUT       9  // active low
+#define SWITCH_FORCE_240P     13 // active low
 
 typedef struct {
   uint8_t addr;      // device address to send the command to
@@ -24,11 +29,13 @@ device_command_t commands_freerun_480i_60Hz_YPbPr_out[] = {
   // {0x20, 0x0F, 0x80, 10}, // Reset ADV7280A (TODO: enabling this command kills I2C, why?)
   {0x2A, 0x17, 0x02, 0 }, // Reset Encoder
   {0x20, 0x0F, 0x00, 10}, // Exit Power Down Mode [ADV7280A writes begin]
-  {0x20, 0x52, 0xCD, 0 }, // AFE IBIAS
-  {0x20, 0x00, 0x07, 0 }, // ADI Required Write [INSEL set to unconnected input]
-  {0x20, 0x0C, 0x37, 0 }, // Force Free run mode
+  // {0x20, 0x52, 0xCD, 0 }, // AFE IBIAS
+  // {0x20, 0x54, 0xC0, 0 }, // AFE IBIAS
+  // {0x20, 0x00, 0x0C, 0 }, // INSEL = YPbPr, Y=Ain1, Pb=Ain2, Pr=Ain3 (COMPONENT IN)
+  // {0x20, 0x00, 0x00, 0 }, // INSEL = YPbPr, Y=Ain1, Pb=Ain2, Pr=Ain3 (COMPOSITE IN)
+  // {0x20, 0x0C, 0x37, 0 }, // Force Free run mode
   {0x20, 0x02, 0x54, 0 }, // Force standard to NTSC-M
-  {0x20, 0x14, 0x11, 0 }, // Set Free-run pattern to 100% color bars
+  // {0x20, 0x14, 0x11, 0 }, // Set Free-run pattern to 100% color bars
   {0x20, 0x80, 0x51, 0 }, // ADI Required Write
   {0x20, 0x81, 0x51, 0 }, // ADI Required Write
   {0x20, 0x82, 0x68, 0 }, // ADI Required Write
@@ -39,10 +46,61 @@ device_command_t commands_freerun_480i_60Hz_YPbPr_out[] = {
   {0x20, 0x1D, 0x40, 0 }, // Enable LLC output driver [ADV7280A writes finished]
   {0x2A, 0x00, 0x1C, 0 }, // Power up DACs and PLL [Encoder writes begin]
   {0x2A, 0x01, 0x00, 0 }, // Set Encoder to SD mode
+  // {0x2A, 0x02, 0x10, 0 }, // RGB output enabled; RGB output sync enabled
   {0x2A, 0x80, 0x10, 0 }, // SSAF Luma filter enabled, NTSC mode
-  {0x2A, 0x82, 0xC9, 0 }, // Step control on, pixel data valid, ped on, PbPr SSAF on, YPbPr out
+  // {0x2A, 0x82, 0xC9, 0 }, // Step control on, pixel data valid, ped on, PbPr SSAF on
   {0x2A, 0x87, 0x20, 0 }, // PAL/NTSC autodetect mode enabled
-  {0x2A, 0x88, 0x00, 0 }, // 8 bit input enabled [Encoder Writes finished]
+  // {0x2A, 0x88, 0x00, 0 }, // 8 bit input enabled [Encoder Writes finished]
+};
+
+device_command_t commands_cvbs_input[] = {
+  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode
+  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern
+  {0x20, 0x52, 0xCD, 0}, // AFE IBIAS
+  {0x20, 0x00, 0x00, 0}, // CVBS in on Ain1
+};
+
+device_command_t commands_yc_input[] = {
+  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode
+  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern
+  {0x20, 0x53, 0xCE, 0}, // AFE IBIAS
+  {0x20, 0x00, 0x08, 0}, // INSEL = YC, Y - Ain1, C - Ain2
+};
+
+device_command_t commands_ypbpr_input[] = {
+  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode
+  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern
+  {0x20, 0x54, 0xC0, 0}, // AFE IBIAS
+  {0x20, 0x00, 0x0C, 0}, // INSEL = YPbPr, Y=Ain1, Pb=Ain2, Pr=Ain3
+};
+
+device_command_t commands_test_pattern_input[] = {
+  {0x20, 0x00, 0x07, 0}, // ADI Required Write [INSEL set to unconnected input]
+  {0x20, 0x0C, 0x37, 0}, // Force Free run mode
+  {0x20, 0x14, 0x12, 0}, // Set Free-run pattern to luma ramp
+};
+
+device_command_t commands_rgb_output[] = {
+  {0x2A, 0x02, 0x10, 0}, // RGB output enabled; RGB output sync enabled
+  {0x2A, 0x82, 0xC9, 0}, // pixel data valid; RGB out; PbPr SSAF on; step control on; ped on
+};
+
+device_command_t commands_ypbpr_output[] = {
+  {0x2A, 0x02, 0x20, 0}, // RGB output disabled (reset register to default value)
+  {0x2A, 0x82, 0xC9, 0}, // pixel data valid; YPbPr out; PbPr SSAF on; step control on; ped on
+};
+
+device_command_t commands_cvbs_output[] = {
+  {0x2A, 0x02, 0x20, 0}, // RGB output disabled (reset register to default value)
+  {0x2A, 0x82, 0xCB, 0}, // pixel data valid; CVBS/Y-C out; PbPr SSAF on; step control on; ped on
+};
+
+device_command_t commands_force_240p[] = {
+  {0x2A, 0x88, 0x02, 0}, // 8 bit input enabled, SD noninterlaced mode on
+};
+
+device_command_t commands_unforce_240p[] = {
+  {0x2A, 0x88, 0x00, 0}, // 8 bit input enabled, SD noninterlaced mode off
 };
 
 int i2c_write_to_device_register(i2c_inst_t *i2c, uint8_t addr, uint8_t reg, uint8_t val) {
@@ -105,11 +163,72 @@ int main() {
   gpio_put(DEVICE_RESET_PIN_7391, 1);
   sleep_ms(10);
 
-  int ret;
+  gpio_init(SWITCH_CVBS_IN);
+  gpio_set_dir(SWITCH_CVBS_IN, GPIO_IN);
+  gpio_pull_up(SWITCH_CVBS_IN);
 
-  ret = i2c_write_commands(I2C_PORT, commands_freerun_480i_60Hz_YPbPr_out, 21);
+  gpio_init(SWITCH_YC_IN);
+  gpio_set_dir(SWITCH_YC_IN, GPIO_IN);
+  gpio_pull_up(SWITCH_YC_IN);
+
+  gpio_init(SWITCH_YPBPR_OUT);
+  gpio_set_dir(SWITCH_YPBPR_OUT, GPIO_IN);
+  gpio_pull_up(SWITCH_YPBPR_OUT);
+
+  gpio_init(SWITCH_CVBS_OUT);
+  gpio_set_dir(SWITCH_CVBS_OUT, GPIO_IN);
+  gpio_pull_up(SWITCH_CVBS_OUT);
+
+  gpio_init(SWITCH_FORCE_240P);
+  gpio_set_dir(SWITCH_FORCE_240P, GPIO_IN);
+  gpio_pull_up(SWITCH_FORCE_240P);
+
+  int ret = i2c_write_commands(I2C_PORT, commands_freerun_480i_60Hz_YPbPr_out, 15);
   if (ret < 0)
     return ret;
+
+  while (true) {
+    sleep_ms(50);
+
+    bool cvbs_in = !gpio_get(SWITCH_CVBS_IN);       // active low
+    bool yc_in = !gpio_get(SWITCH_YC_IN);           // active low
+    bool ypbpr_out = !gpio_get(SWITCH_YPBPR_OUT);   // active low
+    bool cvbs_out = !gpio_get(SWITCH_CVBS_OUT);     // active low
+    bool force_240p = !gpio_get(SWITCH_FORCE_240P); // active low
+
+    if (!cvbs_in && !yc_in) {
+      ret = i2c_write_commands(I2C_PORT, commands_ypbpr_input, 4);
+    } else if (cvbs_in && !yc_in) {
+      ret = i2c_write_commands(I2C_PORT, commands_cvbs_input, 4);
+    } else if (!cvbs_in && yc_in) {
+      ret = i2c_write_commands(I2C_PORT, commands_yc_input, 4);
+    } else {
+      ret = i2c_write_commands(I2C_PORT, commands_test_pattern_input, 3);
+    }
+
+    if (ret < 0)
+      return ret;
+
+    if (ypbpr_out) {
+      ret = i2c_write_commands(I2C_PORT, commands_ypbpr_output, 2);
+    } else if (cvbs_out) {
+      ret = i2c_write_commands(I2C_PORT, commands_cvbs_output, 2);
+    } else {
+      ret = i2c_write_commands(I2C_PORT, commands_rgb_output, 2);
+    }
+
+    if (ret < 0)
+      return ret;
+
+    if (force_240p) {
+      ret = i2c_write_commands(I2C_PORT, commands_force_240p, 1);
+    } else {
+      ret = i2c_write_commands(I2C_PORT, commands_unforce_240p, 1);
+    }
+
+    if (ret < 0)
+      return ret;
+  }
 
   return 0;
 }
