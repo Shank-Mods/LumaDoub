@@ -7,9 +7,11 @@
 // This example will use I2C0 on GPIO8 (SDA) and GPIO9 (SCL) running at 400KHz.
 // Pins can be changed, see the GPIO function select table in the datasheet for
 // information on GPIO assignments
-#define I2C_PORT i2c0
-#define I2C_SDA  4
-#define I2C_SCL  5
+#define I2C_PORT              i2c0
+#define I2C_SDA               4
+#define I2C_SCL               5
+#define DEVICE_RESET_PIN_7280 2 // active low
+#define DEVICE_RESET_PIN_7391 3 // active low
 
 typedef struct {
   uint8_t addr;      // device address to send the command to
@@ -19,7 +21,7 @@ typedef struct {
 } device_command_t;
 
 device_command_t commands_freerun_480i_60Hz_YPbPr_out[] = {
-  {0x20, 0x0F, 0x80, 10}, // Reset ADV7280A
+  // {0x20, 0x0F, 0x80, 10}, // Reset ADV7280A (TODO: enabling this command kills I2C, why?)
   {0x2A, 0x17, 0x02, 0 }, // Reset Encoder
   {0x20, 0x0F, 0x00, 10}, // Exit Power Down Mode [ADV7280A writes begin]
   {0x20, 0x52, 0xCD, 0 }, // AFE IBIAS
@@ -45,7 +47,11 @@ device_command_t commands_freerun_480i_60Hz_YPbPr_out[] = {
 
 int i2c_write_to_device_register(i2c_inst_t *i2c, uint8_t addr, uint8_t reg, uint8_t val) {
   const uint8_t data[2] = {reg, val};
-  return i2c_write_blocking(i2c, addr, data, 2, false);
+  int ret = i2c_write_blocking_until(i2c, addr, data, 2, false, make_timeout_time_ms(100));
+  if (!ret || ret == PICO_ERROR_TIMEOUT)
+    return 0;
+  else
+    return ret;
 };
 
 int i2c_write_commands(i2c_inst_t *i2c, device_command_t *commands, int len) {
@@ -83,9 +89,25 @@ int main() {
   // For more examples of I2C use see
   // https://github.com/raspberrypi/pico-examples/tree/master/i2c
 
+  gpio_init(DEVICE_RESET_PIN_7280);
+  gpio_set_dir(DEVICE_RESET_PIN_7280, GPIO_OUT);
+
+  gpio_put(DEVICE_RESET_PIN_7280, 0);
+  sleep_ms(750);
+  gpio_put(DEVICE_RESET_PIN_7280, 1);
+  sleep_ms(10);
+
+  gpio_init(DEVICE_RESET_PIN_7391);
+  gpio_set_dir(DEVICE_RESET_PIN_7391, GPIO_OUT);
+
+  gpio_put(DEVICE_RESET_PIN_7391, 0);
+  sleep_ms(750);
+  gpio_put(DEVICE_RESET_PIN_7391, 1);
+  sleep_ms(10);
+
   int ret;
 
-  ret = i2c_write_commands(I2C_PORT, commands_freerun_480i_60Hz_YPbPr_out, 22);
+  ret = i2c_write_commands(I2C_PORT, commands_freerun_480i_60Hz_YPbPr_out, 21);
   if (ret < 0)
     return ret;
 
