@@ -32,16 +32,16 @@ device_command_t commands_freerun_480i_60Hz_YPbPr_out[] = {
   {0x2A, 0x17, 0x02, 0 }, // Reset Encoder
   {0x20, 0x0F, 0x00, 10}, // Exit Power Down Mode [ADV7280A writes begin]
   // {0x20, 0x52, 0xCD, 0 }, // AFE IBIAS
-  // {0x20, 0x54, 0xC0, 0 }, // AFE IBIAS
+  // {0x20, 0x54, 0xC0, 0 }, // AFE IBIAS             ***Reserved bits in the "interrupt clear" diagnostic pin
   // {0x20, 0x00, 0x0C, 0 }, // INSEL = YPbPr, Y=Ain1, Pb=Ain2, Pr=Ain3 (COMPONENT IN)
   // {0x20, 0x00, 0x00, 0 }, // INSEL = YPbPr, Y=Ain1, Pb=Ain2, Pr=Ain3 (COMPOSITE IN)
   // {0x20, 0x0C, 0x37, 0 }, // Force Free run mode
   {0x20, 0x02, 0x54, 0 }, // Force standard to NTSC-M
   // {0x20, 0x14, 0x11, 0 }, // Set Free-run pattern to 100% color bars
-  {0x20, 0x80, 0x51, 0 }, // ADI Required Write
-  {0x20, 0x81, 0x51, 0 }, // ADI Required Write
-  {0x20, 0x82, 0x68, 0 }, // ADI Required Write
-  {0x20, 0x17, 0x41, 0 }, // Enable SH1
+  {0x20, 0x80, 0x51, 0 }, // ADI Required Write       ***Affects reserved bits for ACE. Consider experimenting with disabling*** ***CONSIDER SETTING TO 0X00. THIS IS CONTRAST BOOST, ACE)***
+  {0x20, 0x81, 0x51, 0 }, // ADI Required Write       ***Undocumented, within ACE section. Consider experimenting with disabling***
+  {0x20, 0x82, 0x68, 0 }, // ADI Required Write       ***Affects Pal. Says "Not Applicable for NTSC"***
+  {0x20, 0x17, 0x41, 0 }, // Enable SH1               ***This sets a non-standard "C filter" (SH1), may only affect composite***
   {0x20, 0x03, 0x0C, 0 }, // Enable Pixel & Sync output drivers
   {0x20, 0x04, 0x07, 0 }, // Power-up INTRQ, HS & VS pads
   {0x20, 0x13, 0x00, 0 }, // Enable ADV7280A for 28_63636MHz crystal
@@ -57,23 +57,23 @@ device_command_t commands_freerun_480i_60Hz_YPbPr_out[] = {
 };
 
 device_command_t commands_cvbs_input[] = {
-  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode
-  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern
-  {0x20, 0x52, 0xCD, 0}, // AFE IBIAS
-  {0x20, 0x00, 0x00, 0}, // CVBS in on Ain1
+  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D***
+  {0x20, 0x52, 0xCD, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
+  {0x20, 0x00, 0x00, 0}, // CVBS in on Ain1                   ***Bits 7, 6, and 5 are blank and undocumented. Investigate?***
 };
 
 device_command_t commands_yc_input[] = {
-  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode
-  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern
-  {0x20, 0x53, 0xCE, 0}, // AFE IBIAS
+  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D [default settings]***
+  {0x20, 0x53, 0xCE, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
   {0x20, 0x00, 0x08, 0}, // INSEL = YC, Y - Ain1, C - Ain2
 };
 
 device_command_t commands_ypbpr_input[] = {
-  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode
-  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern
-  {0x20, 0x54, 0xC0, 0}, // AFE IBIAS
+  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D [default settings]***
+  {0x20, 0x54, 0xC0, 0}, // AFE IBIAS                         ***UNDOCUMENTED. Reserved bit in Interrupt clear diagnostic register? This is never set back. Can we delete or make permanent?***
   {0x20, 0x00, 0x0C, 0}, // INSEL = YPbPr, Y=Ain1, Pb=Ain2, Pr=Ain3
 };
 
