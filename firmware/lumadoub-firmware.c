@@ -16,6 +16,8 @@
 #define SWITCH_YC_IN          7  // active low
 #define SWITCH_YPBPR_OUT      8  // active low
 #define SWITCH_CVBS_OUT       9  // active low
+#define SWITCH_LINE_DOUBLE    10 // active low
+#define SWITCH_VASELINE       11 // active low
 #define SWITCH_FORCE_240P     13 // active low
 
 typedef struct {
@@ -43,13 +45,14 @@ device_command_t commands_freerun_480i_60Hz_YPbPr_out[] = {
   {0x20, 0x03, 0x0C, 0 }, // Enable Pixel & Sync output drivers
   {0x20, 0x04, 0x07, 0 }, // Power-up INTRQ, HS & VS pads
   {0x20, 0x13, 0x00, 0 }, // Enable ADV7280A for 28_63636MHz crystal
-  {0x20, 0x1D, 0x40, 0 }, // Enable LLC output driver [ADV7280A writes finished]
-  {0x2A, 0x00, 0x1C, 0 }, // Power up DACs and PLL [Encoder writes begin]
-  {0x2A, 0x01, 0x00, 0 }, // Set Encoder to SD mode
+  {0x20, 0x1D, 0x40, 0 }, // Enable LLC output driver
+  {0x20, 0xFD, 0x84, 0 }, // Set VPP Map [ADV7280A writes finished]
+  // {0x2A, 0x00, 0x1C, 0 }, // Power up DACs and PLL [Encoder writes begin]
+  // {0x2A, 0x01, 0x00, 0 }, // Set Encoder to SD mode
   // {0x2A, 0x02, 0x10, 0 }, // RGB output enabled; RGB output sync enabled
-  {0x2A, 0x80, 0x10, 0 }, // SSAF Luma filter enabled, NTSC mode
+  // {0x2A, 0x80, 0x10, 0 }, // SSAF Luma filter enabled, NTSC mode
   // {0x2A, 0x82, 0xC9, 0 }, // Step control on, pixel data valid, ped on, PbPr SSAF on
-  {0x2A, 0x87, 0x20, 0 }, // PAL/NTSC autodetect mode enabled
+  // {0x2A, 0x87, 0x20, 0 }, // PAL/NTSC autodetect mode enabled
   // {0x2A, 0x88, 0x00, 0 }, // 8 bit input enabled [Encoder Writes finished]
 };
 
@@ -93,6 +96,48 @@ device_command_t commands_ypbpr_output[] = {
 device_command_t commands_cvbs_output[] = {
   {0x2A, 0x02, 0x20, 0}, // RGB output disabled (reset register to default value)
   {0x2A, 0x82, 0xCB, 0}, // pixel data valid; CVBS/Y-C out; PbPr SSAF on; step control on; ped on
+};
+
+device_command_t commands_line_double[] = {
+  {0x42, 0xA3, 0x00, 0}, // ADI Required Write [ADV7280A VPP writes begin]
+  {0x42, 0x5B, 0x00, 0}, // Enable Advanced Timing Mode
+  {0x42, 0x55, 0x80, 0}, // Enable the Deinterlacer for I2P [ADV7280A VPP writes finished]
+
+  {0x2A, 0x00, 0x9C, 0}, // Power up DACs and PLL [Encoder writes begin]
+  {0x2A, 0x01, 0x70, 0}, // ED at 54MHz input
+
+  {0x2A, 0x30, 0x04, 0}, // 525p at 59.94 Hz with Embedded Timing
+  {0x2A, 0x31, 0x01, 0}, // ED Pixel Data Valid [Encoder Writes finished]
+
+  {0x2A, 0x80, 0x00, 0}, // SSAF Luma filter enabled, NTSC mode (TODO: same as reset value, so not needed here?)
+  {0x2A, 0x87, 0x00, 0}, // PAL/NTSC autodetect mode disabled (Reset value for SD register)
+};
+
+device_command_t commands_line_undouble[] = {
+  {0x42, 0xA3, 0x00, 0}, // ADI Required Write [ADV7280A VPP writes begin]
+  {0x42, 0x5B, 0x80, 0}, // Disable Advanced Timing Mode
+  {0x42, 0x55, 0x00, 0}, // Disable I2P [ADV7280A VPP writes finished]
+
+  {0x2A, 0x00, 0x1C, 0}, // Power up DACs and PLL [Encoder writes begin]
+  {0x2A, 0x01, 0x00, 0}, // Set Encoder to SD mode
+
+  {0x2A, 0x30, 0x00, 0}, // Reset value for ED register
+  {0x2A, 0x31, 0x00, 0}, // Reset value for ED register
+
+  {0x2A, 0x80, 0x00, 0}, // SSAF Luma filter enabled, NTSC mode (TODO: same as reset value, so not needed here?)
+  {0x2A, 0x87, 0x20, 0}, // PAL/NTSC autodetect mode enabled
+};
+
+device_command_t commands_vaseline_on[] = {
+  // {0x20, 0xF3, 0x1F, 0}, // Enable all antialiasing filters
+  // {0x20, 0x17, 0b00000001, 0}, // Enable Chroma Filter
+  {0x20, 0x17, 0b00011000, 0}, // Enable Secret Deinterlacer
+};
+
+device_command_t commands_vaseline_off[] = {
+  // {0x20, 0xF3, 0x10, 0}, // Disable all antialiasing filters
+  // {0x20, 0x17, 0b00100001, 0}, // Disables Chroma FIlter
+  {0x20, 0x17, 0b00000000, 0}, // Enable Standard Deinterlacer
 };
 
 device_command_t commands_force_240p[] = {
@@ -179,22 +224,50 @@ int main() {
   gpio_set_dir(SWITCH_CVBS_OUT, GPIO_IN);
   gpio_pull_up(SWITCH_CVBS_OUT);
 
+  gpio_init(SWITCH_LINE_DOUBLE);
+  gpio_set_dir(SWITCH_LINE_DOUBLE, GPIO_IN);
+  gpio_pull_up(SWITCH_LINE_DOUBLE);
+
+  gpio_init(SWITCH_VASELINE);
+  gpio_set_dir(SWITCH_VASELINE, GPIO_IN);
+  gpio_pull_up(SWITCH_VASELINE);
+
   gpio_init(SWITCH_FORCE_240P);
   gpio_set_dir(SWITCH_FORCE_240P, GPIO_IN);
   gpio_pull_up(SWITCH_FORCE_240P);
 
-  int ret = i2c_write_commands(I2C_PORT, commands_freerun_480i_60Hz_YPbPr_out, 15);
+  int ret = i2c_write_commands(I2C_PORT, commands_freerun_480i_60Hz_YPbPr_out, 12);
   if (ret < 0)
     return ret;
 
   while (true) {
     sleep_ms(50);
 
-    bool cvbs_in = !gpio_get(SWITCH_CVBS_IN);       // active low
-    bool yc_in = !gpio_get(SWITCH_YC_IN);           // active low
-    bool ypbpr_out = !gpio_get(SWITCH_YPBPR_OUT);   // active low
-    bool cvbs_out = !gpio_get(SWITCH_CVBS_OUT);     // active low
-    bool force_240p = !gpio_get(SWITCH_FORCE_240P); // active low
+    bool cvbs_in = !gpio_get(SWITCH_CVBS_IN);         // active low
+    bool yc_in = !gpio_get(SWITCH_YC_IN);             // active low
+    bool ypbpr_out = !gpio_get(SWITCH_YPBPR_OUT);     // active low
+    bool cvbs_out = !gpio_get(SWITCH_CVBS_OUT);       // active low
+    bool line_double = !gpio_get(SWITCH_LINE_DOUBLE); // active low
+    bool vaseline_on = !gpio_get(SWITCH_VASELINE);    // active low
+    bool force_240p = !gpio_get(SWITCH_FORCE_240P);   // active low
+
+    if (line_double) {
+      ret = i2c_write_commands(I2C_PORT, commands_line_double, 9);
+    } else {
+      ret = i2c_write_commands(I2C_PORT, commands_line_undouble, 9);
+    }
+
+    if (ret < 0)
+      return ret;
+
+    if (vaseline_on) {
+      ret = i2c_write_commands(I2C_PORT, commands_vaseline_on, 1);
+    } else {
+      ret = i2c_write_commands(I2C_PORT, commands_vaseline_off, 1);
+    }
+
+    if (ret < 0)
+      return ret;
 
     if (!cvbs_in && !yc_in) {
       ret = i2c_write_commands(I2C_PORT, commands_ypbpr_input, 4);
