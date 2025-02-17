@@ -38,7 +38,7 @@ pico_set_program_name(lumadoub-firmware "lumadoub-firmware")
 pico_set_program_version(lumadoub-firmware "0.1")
 
 # Modify the below lines to enable/disable output over UART/USB
-pico_enable_stdio_uart(lumadoub-firmware 0)
+pico_enable_stdio_uart(lumadoub-firmware 1)
 pico_enable_stdio_usb(lumadoub-firmware 1)
 
 # Add the standard library to the build

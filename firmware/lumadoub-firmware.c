@@ -10,15 +10,36 @@
 #define I2C_PORT              i2c0
 #define I2C_SDA               4
 #define I2C_SCL               5
-#define DEVICE_RESET_PIN_7280 2  // active low
-#define DEVICE_RESET_PIN_7391 3  // active low
-#define SWITCH_CVBS_IN        6  // active low
-#define SWITCH_YC_IN          7  // active low
-#define SWITCH_YPBPR_OUT      8  // active low
-#define SWITCH_CVBS_OUT       9  // active low
-#define SWITCH_LINE_DOUBLE    10 // active low
-#define SWITCH_VASELINE       11 // active low
-#define SWITCH_FORCE_240P     13 // active low
+#define DEVICE_RESET_PIN_7280 2 // active low
+#define DEVICE_RESET_PIN_7391 3 // active low
+
+#define SWITCH_CVBS_IN      6  // active low
+#define SWITCH_YC_IN        7  // active low
+#define SWITCH_YPBPR_OUT    8  // active low
+#define SWITCH_CVBS_OUT     9  // active low
+#define SWITCH_LINE_DOUBLE  10 // active low
+#define SWITCH_VASELINE     11 // active low
+#define SWITCH_NOTCH_FILTER 12 // active low
+#define SWITCH_FORCE_240P   13 // active low
+
+// the following defines select one register whose bits are controlled by the on-board register bits switches.
+// device addresses to choose from:
+//    0x20: 7280's main (user sub) map
+//    0x42: 7280's VPP map
+//    0x2A: 7391
+#define DEVICE_SWITCH_BITS     0x42 // device address, as given above
+#define REGISTER_SWITCH_BITS   0x00 // register sub-address in that device
+#define REGISTER_DEFAULT_VALUE 0x00 // default value for that register
+#define SWITCH_B7              14   // active low
+#define SWITCH_B6              15   // active low
+#define SWITCH_B5              16   // active low
+#define SWITCH_B4              17   // active low
+#define SWITCH_B3              18   // active low
+#define SWITCH_B2              19   // active low
+#define SWITCH_B1              20   // active low
+#define SWITCH_B0              21   // active low
+
+#define LOOP_RATE_MS 50
 
 typedef struct {
   uint8_t addr;      // device address to send the command to
@@ -101,7 +122,7 @@ device_command_t commands_cvbs_output[] = {
 device_command_t commands_line_double[] = {
   {0x42, 0xA3, 0x00, 0}, // ADI Required Write [ADV7280A VPP writes begin]
   {0x42, 0x5B, 0x00, 0}, // Enable Advanced Timing Mode
-  {0x42, 0x55, 0x80, 0}, // Enable the Deinterlacer for I2P [ADV7280A VPP writes finished]
+  //{0x42, 0x55, 0x80, 0}, // Enable the Deinterlacer for I2P [ADV7280A VPP writes finished]
 
   {0x2A, 0x00, 0x9C, 0}, // Power up DACs and PLL [Encoder writes begin]
   {0x2A, 0x01, 0x70, 0}, // ED at 54MHz input
@@ -116,7 +137,7 @@ device_command_t commands_line_double[] = {
 device_command_t commands_line_undouble[] = {
   {0x42, 0xA3, 0x00, 0}, // ADI Required Write [ADV7280A VPP writes begin]
   {0x42, 0x5B, 0x80, 0}, // Disable Advanced Timing Mode
-  {0x42, 0x55, 0x00, 0}, // Disable I2P [ADV7280A VPP writes finished]
+  //{0x42, 0x55, 0x00, 0}, // Disable I2P [ADV7280A VPP writes finished]
 
   {0x2A, 0x00, 0x1C, 0}, // Power up DACs and PLL [Encoder writes begin]
   {0x2A, 0x01, 0x00, 0}, // Set Encoder to SD mode
@@ -232,24 +253,70 @@ int main() {
   gpio_set_dir(SWITCH_VASELINE, GPIO_IN);
   gpio_pull_up(SWITCH_VASELINE);
 
+  gpio_init(SWITCH_NOTCH_FILTER);
+  gpio_set_dir(SWITCH_NOTCH_FILTER, GPIO_IN);
+  gpio_pull_up(SWITCH_NOTCH_FILTER);
+
   gpio_init(SWITCH_FORCE_240P);
   gpio_set_dir(SWITCH_FORCE_240P, GPIO_IN);
   gpio_pull_up(SWITCH_FORCE_240P);
+
+  gpio_init(SWITCH_B0);
+  gpio_set_dir(SWITCH_B0, GPIO_IN);
+  gpio_pull_up(SWITCH_B0);
+
+  gpio_init(SWITCH_B1);
+  gpio_set_dir(SWITCH_B1, GPIO_IN);
+  gpio_pull_up(SWITCH_B1);
+
+  gpio_init(SWITCH_B2);
+  gpio_set_dir(SWITCH_B2, GPIO_IN);
+  gpio_pull_up(SWITCH_B2);
+
+  gpio_init(SWITCH_B3);
+  gpio_set_dir(SWITCH_B3, GPIO_IN);
+  gpio_pull_up(SWITCH_B3);
+
+  gpio_init(SWITCH_B4);
+  gpio_set_dir(SWITCH_B4, GPIO_IN);
+  gpio_pull_up(SWITCH_B4);
+
+  gpio_init(SWITCH_B5);
+  gpio_set_dir(SWITCH_B5, GPIO_IN);
+  gpio_pull_up(SWITCH_B5);
+
+  gpio_init(SWITCH_B6);
+  gpio_set_dir(SWITCH_B6, GPIO_IN);
+  gpio_pull_up(SWITCH_B6);
+
+  gpio_init(SWITCH_B7);
+  gpio_set_dir(SWITCH_B7, GPIO_IN);
+  gpio_pull_up(SWITCH_B7);
 
   int ret = i2c_write_commands(I2C_PORT, commands_freerun_480i_60Hz_YPbPr_out, 12);
   if (ret < 0)
     return ret;
 
   while (true) {
-    sleep_ms(50);
+    sleep_ms(LOOP_RATE_MS);
 
-    bool cvbs_in = !gpio_get(SWITCH_CVBS_IN);         // active low
-    bool yc_in = !gpio_get(SWITCH_YC_IN);             // active low
-    bool ypbpr_out = !gpio_get(SWITCH_YPBPR_OUT);     // active low
-    bool cvbs_out = !gpio_get(SWITCH_CVBS_OUT);       // active low
-    bool line_double = !gpio_get(SWITCH_LINE_DOUBLE); // active low
-    bool vaseline_on = !gpio_get(SWITCH_VASELINE);    // active low
-    bool force_240p = !gpio_get(SWITCH_FORCE_240P);   // active low
+    bool cvbs_in = !gpio_get(SWITCH_CVBS_IN);           // active low
+    bool yc_in = !gpio_get(SWITCH_YC_IN);               // active low
+    bool ypbpr_out = !gpio_get(SWITCH_YPBPR_OUT);       // active low
+    bool cvbs_out = !gpio_get(SWITCH_CVBS_OUT);         // active low
+    bool line_double = !gpio_get(SWITCH_LINE_DOUBLE);   // active low
+    bool vaseline_on = !gpio_get(SWITCH_VASELINE);      // active low
+    bool notch_filter = !gpio_get(SWITCH_NOTCH_FILTER); // active low
+    bool force_240p = !gpio_get(SWITCH_FORCE_240P);     // active low
+
+    bool bit0 = !gpio_get(SWITCH_B0); // active low
+    bool bit1 = !gpio_get(SWITCH_B1); // active low
+    bool bit2 = !gpio_get(SWITCH_B2); // active low
+    bool bit3 = !gpio_get(SWITCH_B3); // active low
+    bool bit4 = !gpio_get(SWITCH_B4); // active low
+    bool bit5 = !gpio_get(SWITCH_B5); // active low
+    bool bit6 = !gpio_get(SWITCH_B6); // active low
+    bool bit7 = !gpio_get(SWITCH_B7); // active low
 
     if (line_double) {
       ret = i2c_write_commands(I2C_PORT, commands_line_double, 9);
@@ -260,14 +327,14 @@ int main() {
     if (ret < 0)
       return ret;
 
-    if (vaseline_on) {
-      ret = i2c_write_commands(I2C_PORT, commands_vaseline_on, 1);
-    } else {
-      ret = i2c_write_commands(I2C_PORT, commands_vaseline_off, 1);
-    }
+    // if (vaseline_on) {
+    //   ret = i2c_write_commands(I2C_PORT, commands_vaseline_on, 1);
+    // } else {
+    //   ret = i2c_write_commands(I2C_PORT, commands_vaseline_off, 1);
+    // }
 
-    if (ret < 0)
-      return ret;
+    // if (ret < 0)
+    //   return ret;
 
     if (!cvbs_in && !yc_in) {
       ret = i2c_write_commands(I2C_PORT, commands_ypbpr_input, 4);
@@ -297,6 +364,24 @@ int main() {
       ret = i2c_write_commands(I2C_PORT, commands_force_240p, 1);
     } else {
       ret = i2c_write_commands(I2C_PORT, commands_unforce_240p, 1);
+    }
+
+    if (ret < 0)
+      return ret;
+
+    if (notch_filter) {
+      uint8_t register_bits = ((bit7 << 7) | (bit6 << 6) | (bit5 << 5) | (bit4 << 4) | (bit3 << 3) | (bit2 << 2) | (bit1 << 1) | (bit0 << 0));
+      printf("device 0x%02x, register 0x%02x, "
+             "value 0b%d%d%d%d%d%d%d%d (hex 0x%02x, decimal %d)\n",
+             DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0, register_bits, register_bits);
+
+      ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, register_bits);
+    } else {
+      printf("device 0x%02x, register 0x%02x, "
+             "default value\n",
+             DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS);
+
+      ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, REGISTER_DEFAULT_VALUE);
     }
 
     if (ret < 0)
