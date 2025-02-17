@@ -122,7 +122,7 @@ device_command_t commands_cvbs_output[] = {
 device_command_t commands_line_double[] = {
   {0x42, 0xA3, 0x00, 0}, // ADI Required Write [ADV7280A VPP writes begin]
   {0x42, 0x5B, 0x00, 0}, // Enable Advanced Timing Mode
-  //{0x42, 0x55, 0x80, 0}, // Enable the Deinterlacer for I2P [ADV7280A VPP writes finished]
+  {0x42, 0x55, 0x80, 0}, // Enable the Deinterlacer for I2P [ADV7280A VPP writes finished]
 
   {0x2A, 0x00, 0x9C, 0}, // Power up DACs and PLL [Encoder writes begin]
   {0x2A, 0x01, 0x70, 0}, // ED at 54MHz input
@@ -137,7 +137,7 @@ device_command_t commands_line_double[] = {
 device_command_t commands_line_undouble[] = {
   {0x42, 0xA3, 0x00, 0}, // ADI Required Write [ADV7280A VPP writes begin]
   {0x42, 0x5B, 0x80, 0}, // Disable Advanced Timing Mode
-  //{0x42, 0x55, 0x00, 0}, // Disable I2P [ADV7280A VPP writes finished]
+  {0x42, 0x55, 0x00, 0}, // Disable I2P [ADV7280A VPP writes finished]
 
   {0x2A, 0x00, 0x1C, 0}, // Power up DACs and PLL [Encoder writes begin]
   {0x2A, 0x01, 0x00, 0}, // Set Encoder to SD mode
@@ -167,6 +167,18 @@ device_command_t commands_force_240p[] = {
 
 device_command_t commands_unforce_240p[] = {
   {0x2A, 0x88, 0x00, 0}, // 8 bit input enabled, SD noninterlaced mode off
+};
+
+int i2c_read_from_device_register(i2c_inst_t *i2c, uint8_t addr, uint8_t reg, uint8_t *val) {
+  int ret = i2c_write_blocking_until(i2c, addr, &reg, 1, true, make_timeout_time_ms(100));
+  if (!ret || ret == PICO_ERROR_TIMEOUT)
+    return 0;
+
+  ret = i2c_read_blocking_until(i2c, addr, val, 1, false, make_timeout_time_ms(100));
+  if (!ret || ret == PICO_ERROR_TIMEOUT)
+    return 0;
+  else
+    return ret;
 };
 
 int i2c_write_to_device_register(i2c_inst_t *i2c, uint8_t addr, uint8_t reg, uint8_t val) {
@@ -360,28 +372,37 @@ int main() {
     if (ret < 0)
       return ret;
 
-    if (force_240p) {
-      ret = i2c_write_commands(I2C_PORT, commands_force_240p, 1);
+    if (notch_filter) {
+      uint8_t register_bits = ((bit7 << 7) | (bit6 << 6) | (bit5 << 5) | (bit4 << 4) | (bit3 << 3) | (bit2 << 2) | (bit1 << 1) | (bit0 << 0));
+      // printf("device 0x%02x, register 0x%02x, "
+      //        "value 0b%d%d%d%d%d%d%d%d (hex 0x%02x, decimal %d)\n",
+      //        DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0, register_bits, register_bits);
+
+      ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, register_bits);
     } else {
-      ret = i2c_write_commands(I2C_PORT, commands_unforce_240p, 1);
+      // printf("device 0x%02x, register 0x%02x, "
+      //        "default value\n",
+      //        DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS);
+
+      ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, REGISTER_DEFAULT_VALUE);
     }
 
     if (ret < 0)
       return ret;
 
-    if (notch_filter) {
-      uint8_t register_bits = ((bit7 << 7) | (bit6 << 6) | (bit5 << 5) | (bit4 << 4) | (bit3 << 3) | (bit2 << 2) | (bit1 << 1) | (bit0 << 0));
-      printf("device 0x%02x, register 0x%02x, "
-             "value 0b%d%d%d%d%d%d%d%d (hex 0x%02x, decimal %d)\n",
-             DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0, register_bits, register_bits);
+    uint8_t read_value;
+    ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x13, &read_value);
+    if (ret < 0)
+      return ret;
 
-      ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, register_bits);
+    bool is_interlaced = read_value & 0x40;
+
+    // printf("value of register is 0x%02x, is_interlaced is %d\n", read_value, is_interlaced);
+
+    if (force_240p || !is_interlaced) {
+      ret = i2c_write_commands(I2C_PORT, commands_force_240p, 1);
     } else {
-      printf("device 0x%02x, register 0x%02x, "
-             "default value\n",
-             DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS);
-
-      ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, REGISTER_DEFAULT_VALUE);
+      ret = i2c_write_commands(I2C_PORT, commands_unforce_240p, 1);
     }
 
     if (ret < 0)
