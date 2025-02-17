@@ -81,14 +81,14 @@ device_command_t commands_cvbs_input[] = {
   {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
   {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D***
   {0x20, 0x52, 0xCD, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
-  {0x20, 0x00, 0x00, 0}, // CVBS in on Ain1                   ***Bits 7, 6, and 5 are blank and undocumented. Investigate?***
+  {0x20, 0x00, 0x03, 0}, // CVBS in on Ain4                   ***Bits 7, 6, and 5 are blank and undocumented. Investigate?***
 };
 
 device_command_t commands_yc_input[] = {
   {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
   {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D [default settings]***
   {0x20, 0x53, 0xCE, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
-  {0x20, 0x00, 0x08, 0}, // INSEL = YC, Y - Ain1, C - Ain2
+  {0x20, 0x00, 0x09, 0}, // INSEL = YC, Y - Ain3, C - Ain4
 };
 
 device_command_t commands_ypbpr_input[] = {
