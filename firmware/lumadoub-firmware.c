@@ -99,9 +99,10 @@ device_command_t commands_ypbpr_input[] = {
 };
 
 device_command_t commands_test_pattern_input[] = {
-  {0x20, 0x00, 0x07, 0}, // ADI Required Write [INSEL set to unconnected input]
-  {0x20, 0x0C, 0x37, 0}, // Force Free run mode
-  {0x20, 0x14, 0x12, 0}, // Set Free-run pattern to luma ramp
+  //  {0x20, 0x00, 0x07, 0}, // ADI Required Write [INSEL set to unconnected input]
+  //  {0x20, 0x0C, 0x37, 0}, // Force Free run mode
+  //  {0x20, 0x14, 0x12, 0}, // Set Free-run pattern to luma ramp
+
 };
 
 device_command_t commands_rgb_output[] = {
@@ -168,6 +169,27 @@ device_command_t commands_force_240p[] = {
 device_command_t commands_unforce_240p[] = {
   {0x2A, 0x88, 0x00, 0}, // 8 bit input enabled, SD noninterlaced mode off
 };
+//*** */
+device_command_t commands_autocvbs1_input[] = {
+  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D***
+  {0x20, 0x52, 0xCD, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
+  {0x20, 0x00, 0x00, 0}, // CVBS in on Ain1                   ***Bits 7, 6, and 5 are blank and undocumented. Investigate?***
+};
+
+device_command_t commands_autocvbs2_input[] = {
+  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D***
+  {0x20, 0x52, 0xCD, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
+  {0x20, 0x00, 0x01, 0}, // CVBS in on Ain1                   ***Bits 7, 6, and 5 are blank and undocumented. Investigate?***
+};
+device_command_t commands_autocvbs3_input[] = {
+  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D***
+  {0x20, 0x52, 0xCD, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
+  {0x20, 0x00, 0x02, 0}, // CVBS in on Ain1                   ***Bits 7, 6, and 5 are blank and undocumented. Investigate?***
+};
+//*** */
 
 int i2c_read_from_device_register(i2c_inst_t *i2c, uint8_t addr, uint8_t reg, uint8_t *val) {
   int ret = i2c_write_blocking_until(i2c, addr, &reg, 1, true, make_timeout_time_ms(100));
@@ -347,15 +369,20 @@ int main() {
 
     // if (ret < 0)
     //   return ret;
+    bool autocycle;
 
     if (!cvbs_in && !yc_in) {
       ret = i2c_write_commands(I2C_PORT, commands_ypbpr_input, 4);
+      autocycle = 0;
     } else if (cvbs_in && !yc_in) {
       ret = i2c_write_commands(I2C_PORT, commands_cvbs_input, 4);
+      autocycle = 0;
     } else if (!cvbs_in && yc_in) {
       ret = i2c_write_commands(I2C_PORT, commands_yc_input, 4);
+      autocycle = 0;
     } else {
-      ret = i2c_write_commands(I2C_PORT, commands_test_pattern_input, 3);
+      //ret = i2c_write_commands(I2C_PORT, commands_test_pattern_input, 3);
+      autocycle = 1;
     }
 
     if (ret < 0)
@@ -390,12 +417,53 @@ int main() {
     if (ret < 0)
       return ret;
 
-    uint8_t read_value;
-    ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x13, &read_value);
-    if (ret < 0)
-      return ret;
+    uint8_t read_value; // create an 8-bit integer to put the value in
+    ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x13, &read_value); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
+    uint8_t read_value2; // create an 8-bit integer to put the value in
+    ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &read_value2); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
 
-    bool is_interlaced = read_value & 0x40;
+    if (ret < 0)  // if we read the value wrong,
+      return ret; // give up
+
+    // this is how we pick which specific bit to read
+    // we create a boolean variable to store the result in,
+    // then we AND it with a bit mask
+    // bool is_interlaced = read_value & 0x40;
+    bool is_interlaced = read_value & 0b01000000; // this number is the mask
+    bool hlock = read_value2 & 0b00000001;
+
+    printf("hlock = %d, autocycle = %d\n", hlock, autocycle);
+    printf("Register says: 0x%02x\n", read_value2);
+
+    // if (hlock == 0 && autocycle == 1) {
+    //   sleep_ms(200);
+    //   ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &read_value2); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
+    //   hlock = read_value2 & 0b00000001;
+    // }
+
+    if (hlock == 0 && autocycle == 1) {
+      ret = i2c_write_commands(I2C_PORT, commands_autocvbs1_input, 4);
+      printf("butts 1\n");
+      sleep_ms(150);
+      ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &read_value2); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
+      hlock = read_value2 & 0b00000001;
+    }
+
+    if (hlock == 0 && autocycle == 1) {
+      ret = i2c_write_commands(I2C_PORT, commands_autocvbs2_input, 4);
+      sleep_ms(150);
+      printf("butts 2\n");
+      ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &read_value2); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
+      hlock = read_value2 & 0b00000001;
+    }
+
+    if (hlock == 0 && autocycle == 1) {
+      ret = i2c_write_commands(I2C_PORT, commands_autocvbs3_input, 4);
+      sleep_ms(150);
+      printf("butts 3\n");
+      ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &read_value2); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
+      hlock = read_value2 & 0b00000001;
+    }
 
     // printf("value of register is 0x%02x, is_interlaced is %d\n", read_value, is_interlaced);
 
