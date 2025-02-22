@@ -58,6 +58,7 @@ device_command_t commands_freerun_480i_60Hz_YPbPr_out[] = {
   // {0x20, 0x00, 0x00, 0 }, // INSEL = YPbPr, Y=Ain1, Pb=Ain2, Pr=Ain3 (COMPOSITE IN)
   // {0x20, 0x0C, 0x37, 0 }, // Force Free run mode
   {0x20, 0x02, 0x54, 0 }, // Force standard to NTSC-M
+  {0x20, 0x51, 0xC4, 0 }, // Evaluate horizontal lock using fewer lines
   // {0x20, 0x14, 0x11, 0 }, // Set Free-run pattern to 100% color bars
   {0x20, 0x80, 0x51, 0 }, // ADI Required Write       ***Affects reserved bits for ACE. Consider experimenting with disabling*** ***CONSIDER SETTING TO 0X00. THIS IS CONTRAST BOOST, ACE)***
   {0x20, 0x81, 0x51, 0 }, // ADI Required Write       ***Undocumented, within ACE section. Consider experimenting with disabling***
@@ -78,21 +79,21 @@ device_command_t commands_freerun_480i_60Hz_YPbPr_out[] = {
 };
 
 device_command_t commands_cvbs_input[] = {
-  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  {0x20, 0x0C, 0x34, 0}, // Force disable free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
   {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D***
   {0x20, 0x52, 0xCD, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
   {0x20, 0x00, 0x03, 0}, // CVBS in on Ain4                   ***Bits 7, 6, and 5 are blank and undocumented. Investigate?***
 };
 
 device_command_t commands_yc_input[] = {
-  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  {0x20, 0x0C, 0x34, 0}, // Force disable free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
   {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D [default settings]***
   {0x20, 0x53, 0xCE, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
   {0x20, 0x00, 0x09, 0}, // INSEL = YC, Y - Ain3, C - Ain4
 };
 
 device_command_t commands_ypbpr_input[] = {
-  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  {0x20, 0x0C, 0x34, 0}, // Force disable free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
   {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D [default settings]***
   {0x20, 0x54, 0xC0, 0}, // AFE IBIAS                         ***UNDOCUMENTED. Reserved bit in Interrupt clear diagnostic register? This is never set back. Can we delete or make permanent?***
   {0x20, 0x00, 0x0C, 0}, // INSEL = YPbPr, Y=Ain1, Pb=Ain2, Pr=Ain3
@@ -153,13 +154,29 @@ device_command_t commands_line_undouble[] = {
 device_command_t commands_vaseline_on[] = {
   // {0x20, 0xF3, 0x1F, 0}, // Enable all antialiasing filters
   // {0x20, 0x17, 0b00000001, 0}, // Enable Chroma Filter
-  {0x20, 0x17, 0b00011000, 0}, // Enable Secret Deinterlacer
+  // {0x42, 0x17, 0b00011000, 0}, // Enable Secret Deinterlacer
+  {0x20, 0xF3, 0b00011111, 0}, // Enable  AA filters
+  {0x20, 0x0E, 0x40,       0}, //enter user sub map 2
+  {0x20, 0x80, 0x40,       0}, //Disable ACE
+  {0x20, 0x0E, 0x00,       0}, //Leave user sub map 2, Re-enter User Sub map 1
 };
 
 device_command_t commands_vaseline_off[] = {
   // {0x20, 0xF3, 0x10, 0}, // Disable all antialiasing filters
   // {0x20, 0x17, 0b00100001, 0}, // Disables Chroma FIlter
-  {0x20, 0x17, 0b00000000, 0}, // Enable Standard Deinterlacer
+  // {0x42, 0x17, 0b00000000, 0}, // Enable Standard Deinterlacer
+  {0x20, 0xF3, 0b00010000, 0}, // Disable AA filters
+  {0x20, 0x0E, 0x40,       0}, //enter user sub map 2
+  {0x20, 0x80, 0x00,       0}, //Disable ACE
+  {0x20, 0x0E, 0x00,       0}, //Leave user sub map 2, Re-enter User Sub map 1
+};
+
+device_command_t commands_notch_filter_on[] = {
+  {0x20, 0x38, 0b10000100, 0}, //Force notch filter
+};
+
+device_command_t commands_notch_filter_off[] = {
+  {0x20, 0x38, 0b10000000, 0}, //Use automatic filter
 };
 
 device_command_t commands_force_240p[] = {
@@ -327,67 +344,76 @@ int main() {
   gpio_set_dir(SWITCH_B7, GPIO_IN);
   gpio_pull_up(SWITCH_B7);
 
-  int ret = i2c_write_commands(I2C_PORT, commands_freerun_480i_60Hz_YPbPr_out, 12);
+  int ret = i2c_write_commands(I2C_PORT, commands_freerun_480i_60Hz_YPbPr_out, 13);
   if (ret < 0)
     return ret;
+
+  bool cvbs_in, yc_in, ypbpr_out, cvbs_out, autocycle;
+  bool line_double, vaseline_on, notch_filter, force_240p;
+  bool bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0;
+  bool is_interlaced, in_lock, fsc_lock, standard_line_length, standard_field_length, hlock;
+  bool valid_ypbpr, valid_yc, valid_cvbs;
+
+  int current_input, next_input; // 1 is YPbPr, 2 is YC, 3 is CVBS
+  uint8_t read_value2, read_value3, read_value4;
+
+  ret = i2c_write_commands(I2C_PORT, commands_ypbpr_input, 4);
+  if (ret < 0)
+    return ret;
+
+  current_input = 1; // 1 is YPbPr, 2 is YC, 3 is CVBS
 
   while (true) {
     sleep_ms(LOOP_RATE_MS);
 
-    bool cvbs_in = !gpio_get(SWITCH_CVBS_IN);           // active low
-    bool yc_in = !gpio_get(SWITCH_YC_IN);               // active low
-    bool ypbpr_out = !gpio_get(SWITCH_YPBPR_OUT);       // active low
-    bool cvbs_out = !gpio_get(SWITCH_CVBS_OUT);         // active low
-    bool line_double = !gpio_get(SWITCH_LINE_DOUBLE);   // active low
-    bool vaseline_on = !gpio_get(SWITCH_VASELINE);      // active low
-    bool notch_filter = !gpio_get(SWITCH_NOTCH_FILTER); // active low
-    bool force_240p = !gpio_get(SWITCH_FORCE_240P);     // active low
+    cvbs_in = !gpio_get(SWITCH_CVBS_IN);           // active low
+    yc_in = !gpio_get(SWITCH_YC_IN);               // active low
+    ypbpr_out = !gpio_get(SWITCH_YPBPR_OUT);       // active low
+    cvbs_out = !gpio_get(SWITCH_CVBS_OUT);         // active low
+    line_double = !gpio_get(SWITCH_LINE_DOUBLE);   // active low
+    vaseline_on = !gpio_get(SWITCH_VASELINE);      // active low
+    notch_filter = !gpio_get(SWITCH_NOTCH_FILTER); // active low
+    force_240p = !gpio_get(SWITCH_FORCE_240P);     // active low
 
-    bool bit0 = !gpio_get(SWITCH_B0); // active low
-    bool bit1 = !gpio_get(SWITCH_B1); // active low
-    bool bit2 = !gpio_get(SWITCH_B2); // active low
-    bool bit3 = !gpio_get(SWITCH_B3); // active low
-    bool bit4 = !gpio_get(SWITCH_B4); // active low
-    bool bit5 = !gpio_get(SWITCH_B5); // active low
-    bool bit6 = !gpio_get(SWITCH_B6); // active low
-    bool bit7 = !gpio_get(SWITCH_B7); // active low
+    bit0 = !gpio_get(SWITCH_B0); // active low
+    bit1 = !gpio_get(SWITCH_B1); // active low
+    bit2 = !gpio_get(SWITCH_B2); // active low
+    bit3 = !gpio_get(SWITCH_B3); // active low
+    bit4 = !gpio_get(SWITCH_B4); // active low
+    bit5 = !gpio_get(SWITCH_B5); // active low
+    bit6 = !gpio_get(SWITCH_B6); // active low
+    bit7 = !gpio_get(SWITCH_B7); // active low
 
-    if (line_double) {
-      ret = i2c_write_commands(I2C_PORT, commands_line_double, 9);
-    } else {
-      ret = i2c_write_commands(I2C_PORT, commands_line_undouble, 9);
-    }
-
-    if (ret < 0)
-      return ret;
-
-    // if (vaseline_on) {
-    //   ret = i2c_write_commands(I2C_PORT, commands_vaseline_on, 1);
-    // } else {
-    //   ret = i2c_write_commands(I2C_PORT, commands_vaseline_off, 1);
-    // }
-
-    // if (ret < 0)
-    //   return ret;
-    bool autocycle;
-
+    // input (or autocycle)
     if (!cvbs_in && !yc_in) {
       ret = i2c_write_commands(I2C_PORT, commands_ypbpr_input, 4);
+      if (ret < 0)
+        return ret;
+
       autocycle = 0;
+      current_input = 1; // 1 is YPbPr, 2 is YC, 3 is CVBS
+
     } else if (cvbs_in && !yc_in) {
       ret = i2c_write_commands(I2C_PORT, commands_cvbs_input, 4);
+      if (ret < 0)
+        return ret;
+
       autocycle = 0;
+      current_input = 3; // 1 is YPbPr, 2 is YC, 3 is CVBS
+
     } else if (!cvbs_in && yc_in) {
       ret = i2c_write_commands(I2C_PORT, commands_yc_input, 4);
+      if (ret < 0)
+        return ret;
+
       autocycle = 0;
+      current_input = 2; // 1 is YPbPr, 2 is YC, 3 is CVBS
+
     } else {
-      //ret = i2c_write_commands(I2C_PORT, commands_test_pattern_input, 3);
       autocycle = 1;
     }
 
-    if (ret < 0)
-      return ret;
-
+    // output
     if (ypbpr_out) {
       ret = i2c_write_commands(I2C_PORT, commands_ypbpr_output, 2);
     } else if (cvbs_out) {
@@ -399,73 +425,12 @@ int main() {
     if (ret < 0)
       return ret;
 
-    if (notch_filter) {
-      uint8_t register_bits = ((bit7 << 7) | (bit6 << 6) | (bit5 << 5) | (bit4 << 4) | (bit3 << 3) | (bit2 << 2) | (bit1 << 1) | (bit0 << 0));
-      // printf("device 0x%02x, register 0x%02x, "
-      //        "value 0b%d%d%d%d%d%d%d%d (hex 0x%02x, decimal %d)\n",
-      //        DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, bit7, bit6, bit5, bit4, bit3, bit2, bit1, bit0, register_bits, register_bits);
-
-      ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, register_bits);
-    } else {
-      // printf("device 0x%02x, register 0x%02x, "
-      //        "default value\n",
-      //        DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS);
-
-      ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, REGISTER_DEFAULT_VALUE);
-    }
-
+    // force 240p
+    ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x13, &read_value4);
     if (ret < 0)
       return ret;
 
-    uint8_t read_value; // create an 8-bit integer to put the value in
-    ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x13, &read_value); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
-    uint8_t read_value2; // create an 8-bit integer to put the value in
-    ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &read_value2); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
-
-    if (ret < 0)  // if we read the value wrong,
-      return ret; // give up
-
-    // this is how we pick which specific bit to read
-    // we create a boolean variable to store the result in,
-    // then we AND it with a bit mask
-    // bool is_interlaced = read_value & 0x40;
-    bool is_interlaced = read_value & 0b01000000; // this number is the mask
-    bool hlock = read_value2 & 0b00000001;
-
-    printf("hlock = %d, autocycle = %d\n", hlock, autocycle);
-    printf("Register says: 0x%02x\n", read_value2);
-
-    // if (hlock == 0 && autocycle == 1) {
-    //   sleep_ms(200);
-    //   ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &read_value2); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
-    //   hlock = read_value2 & 0b00000001;
-    // }
-
-    if (hlock == 0 && autocycle == 1) {
-      ret = i2c_write_commands(I2C_PORT, commands_autocvbs1_input, 4);
-      printf("butts 1\n");
-      sleep_ms(150);
-      ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &read_value2); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
-      hlock = read_value2 & 0b00000001;
-    }
-
-    if (hlock == 0 && autocycle == 1) {
-      ret = i2c_write_commands(I2C_PORT, commands_autocvbs2_input, 4);
-      sleep_ms(150);
-      printf("butts 2\n");
-      ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &read_value2); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
-      hlock = read_value2 & 0b00000001;
-    }
-
-    if (hlock == 0 && autocycle == 1) {
-      ret = i2c_write_commands(I2C_PORT, commands_autocvbs3_input, 4);
-      sleep_ms(150);
-      printf("butts 3\n");
-      ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &read_value2); // read the value of the register into that integer---this reads the whole register, we'll pick the bit later
-      hlock = read_value2 & 0b00000001;
-    }
-
-    // printf("value of register is 0x%02x, is_interlaced is %d\n", read_value, is_interlaced);
+    is_interlaced = read_value4 & 0b01000000;
 
     if (force_240p || !is_interlaced) {
       ret = i2c_write_commands(I2C_PORT, commands_force_240p, 1);
@@ -475,6 +440,116 @@ int main() {
 
     if (ret < 0)
       return ret;
+
+    // line double
+    if (line_double) {
+      ret = i2c_write_commands(I2C_PORT, commands_line_double, 9);
+    } else {
+      ret = i2c_write_commands(I2C_PORT, commands_line_undouble, 9);
+    }
+
+    if (ret < 0)
+      return ret;
+
+    // vaseline filter
+    if (vaseline_on) {
+      ret = i2c_write_commands(I2C_PORT, commands_vaseline_on, 4);
+    } else {
+      ret = i2c_write_commands(I2C_PORT, commands_vaseline_off, 4);
+    }
+
+    if (ret < 0)
+      return ret;
+
+    // notch filter
+    if (notch_filter) {
+      ret = i2c_write_commands(I2C_PORT, commands_notch_filter_on, 1);
+    } else {
+      ret = i2c_write_commands(I2C_PORT, commands_notch_filter_off, 1);
+    }
+
+    if (ret < 0)
+      return ret;
+
+    // custom register
+    // if (notch_filter) {
+    //    uint8_t register_bits = ((bit7 << 7) | (bit6 << 6) | (bit5 << 5) | (bit4 << 4) | (bit3 << 3) | (bit2 << 2) | (bit1 << 1) | (bit0 << 0));
+    //    ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, register_bits);
+    // } else {
+    //    ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, REGISTER_DEFAULT_VALUE);
+    // }
+
+    // if (ret < 0)
+    //   return ret;
+
+    if (!autocycle)
+      continue;
+
+    ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &read_value2);
+    if (ret < 0)
+      return ret;
+
+    ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x12, &read_value3);
+    if (ret < 0)
+      return ret;
+
+    ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x13, &read_value4);
+    if (ret < 0)
+      return ret;
+
+    in_lock = read_value2 & 0b00000001;
+    fsc_lock = read_value2 & 0b00000100;
+    standard_line_length = !(read_value3 & 0b00010000);
+    standard_field_length = read_value4 & 0b00100000;
+    hlock = read_value4 & 0b00000001;
+
+    printf("input: ");
+    if (current_input == 1) {
+      printf("ypbpr ");
+    } else if (current_input == 2) {
+      printf("yc    ");
+    } else if (current_input == 3) {
+      printf("cvbs  ");
+    }
+
+    printf(" |  hlock = %d/%d, fsc lock = %d  |  0x%02x 0x%02x 0x%02x\n", in_lock, hlock, fsc_lock, read_value2, read_value3, read_value4);
+
+    // if we have hlock, and if we're not in the case where input is YC and we have an invalid line length, no need to keep cycling
+    valid_ypbpr = (current_input == 1 && hlock);
+    valid_yc = (current_input == 2 && hlock);
+    valid_cvbs = (current_input == 3 && hlock);
+    if (valid_ypbpr || valid_yc || valid_cvbs) {
+      next_input = 1;
+      continue;
+    }
+
+    if (next_input == 1) {
+      // try YPbPr
+      ret = i2c_write_commands(I2C_PORT, commands_ypbpr_input, 4);
+      if (ret < 0)
+        return ret;
+
+      current_input = 1; // 1 is YPbPr, 2 is YC, 3 is CVBS
+      next_input = 3;
+
+    } else if (next_input == 3) {
+      // try CVBS
+      ret = i2c_write_commands(I2C_PORT, commands_cvbs_input, 4);
+      if (ret < 0)
+        return ret;
+
+      current_input = 3; // 1 is YPbPr, 2 is YC, 3 is CVBS
+      next_input = 2;
+
+    } else if (next_input == 2) {
+      // try YC
+      ret = i2c_write_commands(I2C_PORT, commands_yc_input, 4);
+      if (ret < 0)
+        return ret;
+
+      current_input = 2; // 1 is YPbPr, 2 is YC, 3 is CVBS
+      next_input = 1;
+    }
   }
 
   return 0;
