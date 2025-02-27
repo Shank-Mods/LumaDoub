@@ -246,7 +246,7 @@ int main() {
   bool valid_ypbpr, valid_yc, valid_cvbs;
 
   int current_input, next_input; // 1 is YPbPr, 2 is YC, 3 is CVBS
-  uint8_t read_value2, read_value3, read_value4;
+  uint8_t read_value2, read_value3, read_value4, read_value5;
 
   ret = i2c_write_commands(I2C_PORT, commands_ypbpr_input, 4);
   if (ret < 0)
@@ -340,6 +340,10 @@ int main() {
       return ret;
 
     // line double
+    ret = i2c_read_from_device_register(I2C_PORT, 0x42, 0x5A, &read_value5);
+    if (ret < 0)
+      return ret;
+
     if (line_double) {
       ret = i2c_write_commands(I2C_PORT, commands_line_double, 9);
     } else {
@@ -410,7 +414,7 @@ int main() {
       printf("cvbs  ");
     }
 
-    printf(" |  hlock = %d/%d, fsc lock = %d  |  0x%02x 0x%02x 0x%02x\n", in_lock, hlock, fsc_lock, read_value2, read_value3, read_value4);
+    printf(" |  vpp map reg 5A: 0x%02x  |  hlock = %d/%d, fsc lock = %d  |  0x%02x 0x%02x 0x%02x\n", read_value5, in_lock, hlock, fsc_lock, read_value2, read_value3, read_value4);
 
     // if we have hlock, and if we're not in the case where input is YC and we have an invalid line length, no need to keep cycling
     valid_ypbpr = (current_input == 1 && hlock);
