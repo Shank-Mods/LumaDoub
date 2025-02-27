@@ -41,6 +41,8 @@
 
 #define LOOP_RATE_MS 50
 
+void init();
+
 typedef struct {
   uint8_t addr;      // device address to send the command to
   uint8_t reg;       // register to write to
@@ -186,27 +188,6 @@ device_command_t commands_force_240p[] = {
 device_command_t commands_unforce_240p[] = {
   {0x2A, 0x88, 0x00, 0}, // 8 bit input enabled, SD noninterlaced mode off
 };
-//*** */
-device_command_t commands_autocvbs1_input[] = {
-  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
-  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D***
-  {0x20, 0x52, 0xCD, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
-  {0x20, 0x00, 0x00, 0}, // CVBS in on Ain1                   ***Bits 7, 6, and 5 are blank and undocumented. Investigate?***
-};
-
-device_command_t commands_autocvbs2_input[] = {
-  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
-  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D***
-  {0x20, 0x52, 0xCD, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
-  {0x20, 0x00, 0x01, 0}, // CVBS in on Ain1                   ***Bits 7, 6, and 5 are blank and undocumented. Investigate?***
-};
-device_command_t commands_autocvbs3_input[] = {
-  {0x20, 0x0C, 0x36, 0}, // Don't force free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
-  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D***
-  {0x20, 0x52, 0xCD, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
-  {0x20, 0x00, 0x02, 0}, // CVBS in on Ain1                   ***Bits 7, 6, and 5 are blank and undocumented. Investigate?***
-};
-//*** */
 
 int i2c_read_from_device_register(i2c_inst_t *i2c, uint8_t addr, uint8_t reg, uint8_t *val) {
   int ret = i2c_write_blocking_until(i2c, addr, &reg, 1, true, make_timeout_time_ms(100));
@@ -252,97 +233,7 @@ int i2c_write_commands(i2c_inst_t *i2c, device_command_t *commands, int len) {
 };
 
 int main() {
-  stdio_init_all();
-
-  // I2C Initialisation. Using it at 100Khz.
-  i2c_init(I2C_PORT, 100 * 1000);
-
-  gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
-  gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
-  gpio_pull_up(I2C_SDA);
-  gpio_pull_up(I2C_SCL);
-  // For more examples of I2C use see
-  // https://github.com/raspberrypi/pico-examples/tree/master/i2c
-
-  gpio_init(DEVICE_RESET_PIN_7280);
-  gpio_set_dir(DEVICE_RESET_PIN_7280, GPIO_OUT);
-
-  gpio_put(DEVICE_RESET_PIN_7280, 0);
-  sleep_ms(750);
-  gpio_put(DEVICE_RESET_PIN_7280, 1);
-  sleep_ms(10);
-
-  gpio_init(DEVICE_RESET_PIN_7391);
-  gpio_set_dir(DEVICE_RESET_PIN_7391, GPIO_OUT);
-
-  gpio_put(DEVICE_RESET_PIN_7391, 0);
-  sleep_ms(750);
-  gpio_put(DEVICE_RESET_PIN_7391, 1);
-  sleep_ms(10);
-
-  gpio_init(SWITCH_CVBS_IN);
-  gpio_set_dir(SWITCH_CVBS_IN, GPIO_IN);
-  gpio_pull_up(SWITCH_CVBS_IN);
-
-  gpio_init(SWITCH_YC_IN);
-  gpio_set_dir(SWITCH_YC_IN, GPIO_IN);
-  gpio_pull_up(SWITCH_YC_IN);
-
-  gpio_init(SWITCH_YPBPR_OUT);
-  gpio_set_dir(SWITCH_YPBPR_OUT, GPIO_IN);
-  gpio_pull_up(SWITCH_YPBPR_OUT);
-
-  gpio_init(SWITCH_CVBS_OUT);
-  gpio_set_dir(SWITCH_CVBS_OUT, GPIO_IN);
-  gpio_pull_up(SWITCH_CVBS_OUT);
-
-  gpio_init(SWITCH_LINE_DOUBLE);
-  gpio_set_dir(SWITCH_LINE_DOUBLE, GPIO_IN);
-  gpio_pull_up(SWITCH_LINE_DOUBLE);
-
-  gpio_init(SWITCH_VASELINE);
-  gpio_set_dir(SWITCH_VASELINE, GPIO_IN);
-  gpio_pull_up(SWITCH_VASELINE);
-
-  gpio_init(SWITCH_NOTCH_FILTER);
-  gpio_set_dir(SWITCH_NOTCH_FILTER, GPIO_IN);
-  gpio_pull_up(SWITCH_NOTCH_FILTER);
-
-  gpio_init(SWITCH_FORCE_240P);
-  gpio_set_dir(SWITCH_FORCE_240P, GPIO_IN);
-  gpio_pull_up(SWITCH_FORCE_240P);
-
-  gpio_init(SWITCH_B0);
-  gpio_set_dir(SWITCH_B0, GPIO_IN);
-  gpio_pull_up(SWITCH_B0);
-
-  gpio_init(SWITCH_B1);
-  gpio_set_dir(SWITCH_B1, GPIO_IN);
-  gpio_pull_up(SWITCH_B1);
-
-  gpio_init(SWITCH_B2);
-  gpio_set_dir(SWITCH_B2, GPIO_IN);
-  gpio_pull_up(SWITCH_B2);
-
-  gpio_init(SWITCH_B3);
-  gpio_set_dir(SWITCH_B3, GPIO_IN);
-  gpio_pull_up(SWITCH_B3);
-
-  gpio_init(SWITCH_B4);
-  gpio_set_dir(SWITCH_B4, GPIO_IN);
-  gpio_pull_up(SWITCH_B4);
-
-  gpio_init(SWITCH_B5);
-  gpio_set_dir(SWITCH_B5, GPIO_IN);
-  gpio_pull_up(SWITCH_B5);
-
-  gpio_init(SWITCH_B6);
-  gpio_set_dir(SWITCH_B6, GPIO_IN);
-  gpio_pull_up(SWITCH_B6);
-
-  gpio_init(SWITCH_B7);
-  gpio_set_dir(SWITCH_B7, GPIO_IN);
-  gpio_pull_up(SWITCH_B7);
+  init();
 
   int ret = i2c_write_commands(I2C_PORT, commands_freerun_480i_60Hz_YPbPr_out, 13);
   if (ret < 0)
@@ -554,3 +445,94 @@ int main() {
 
   return 0;
 }
+
+void init() {
+  stdio_init_all();
+
+  i2c_init(I2C_PORT, 100 * 1000);
+
+  gpio_set_function(I2C_SDA, GPIO_FUNC_I2C);
+  gpio_set_function(I2C_SCL, GPIO_FUNC_I2C);
+  gpio_pull_up(I2C_SDA);
+  gpio_pull_up(I2C_SCL);
+
+  gpio_init(DEVICE_RESET_PIN_7280);
+  gpio_set_dir(DEVICE_RESET_PIN_7280, GPIO_OUT);
+
+  gpio_put(DEVICE_RESET_PIN_7280, 0);
+  sleep_ms(750);
+  gpio_put(DEVICE_RESET_PIN_7280, 1);
+  sleep_ms(10);
+
+  gpio_init(DEVICE_RESET_PIN_7391);
+  gpio_set_dir(DEVICE_RESET_PIN_7391, GPIO_OUT);
+
+  gpio_put(DEVICE_RESET_PIN_7391, 0);
+  sleep_ms(750);
+  gpio_put(DEVICE_RESET_PIN_7391, 1);
+  sleep_ms(10);
+
+  gpio_init(SWITCH_CVBS_IN);
+  gpio_set_dir(SWITCH_CVBS_IN, GPIO_IN);
+  gpio_pull_up(SWITCH_CVBS_IN);
+
+  gpio_init(SWITCH_YC_IN);
+  gpio_set_dir(SWITCH_YC_IN, GPIO_IN);
+  gpio_pull_up(SWITCH_YC_IN);
+
+  gpio_init(SWITCH_YPBPR_OUT);
+  gpio_set_dir(SWITCH_YPBPR_OUT, GPIO_IN);
+  gpio_pull_up(SWITCH_YPBPR_OUT);
+
+  gpio_init(SWITCH_CVBS_OUT);
+  gpio_set_dir(SWITCH_CVBS_OUT, GPIO_IN);
+  gpio_pull_up(SWITCH_CVBS_OUT);
+
+  gpio_init(SWITCH_LINE_DOUBLE);
+  gpio_set_dir(SWITCH_LINE_DOUBLE, GPIO_IN);
+  gpio_pull_up(SWITCH_LINE_DOUBLE);
+
+  gpio_init(SWITCH_VASELINE);
+  gpio_set_dir(SWITCH_VASELINE, GPIO_IN);
+  gpio_pull_up(SWITCH_VASELINE);
+
+  gpio_init(SWITCH_NOTCH_FILTER);
+  gpio_set_dir(SWITCH_NOTCH_FILTER, GPIO_IN);
+  gpio_pull_up(SWITCH_NOTCH_FILTER);
+
+  gpio_init(SWITCH_FORCE_240P);
+  gpio_set_dir(SWITCH_FORCE_240P, GPIO_IN);
+  gpio_pull_up(SWITCH_FORCE_240P);
+
+  gpio_init(SWITCH_B0);
+  gpio_set_dir(SWITCH_B0, GPIO_IN);
+  gpio_pull_up(SWITCH_B0);
+
+  gpio_init(SWITCH_B1);
+  gpio_set_dir(SWITCH_B1, GPIO_IN);
+  gpio_pull_up(SWITCH_B1);
+
+  gpio_init(SWITCH_B2);
+  gpio_set_dir(SWITCH_B2, GPIO_IN);
+  gpio_pull_up(SWITCH_B2);
+
+  gpio_init(SWITCH_B3);
+  gpio_set_dir(SWITCH_B3, GPIO_IN);
+  gpio_pull_up(SWITCH_B3);
+
+  gpio_init(SWITCH_B4);
+  gpio_set_dir(SWITCH_B4, GPIO_IN);
+  gpio_pull_up(SWITCH_B4);
+
+  gpio_init(SWITCH_B5);
+  gpio_set_dir(SWITCH_B5, GPIO_IN);
+  gpio_pull_up(SWITCH_B5);
+
+  gpio_init(SWITCH_B6);
+  gpio_set_dir(SWITCH_B6, GPIO_IN);
+  gpio_pull_up(SWITCH_B6);
+
+  gpio_init(SWITCH_B7);
+  gpio_set_dir(SWITCH_B7, GPIO_IN);
+  gpio_pull_up(SWITCH_B7);
+};
