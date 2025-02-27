@@ -253,6 +253,7 @@ int main() {
     return ret;
 
   current_input = 1; // 1 is YPbPr, 2 is YC, 3 is CVBS
+  next_input = 1;    // 1 is YPbPr, 2 is YC, 3 is CVBS
 
   while (true) {
     sleep_ms(LOOP_RATE_MS);
@@ -284,6 +285,8 @@ int main() {
       autocycle = 0;
       current_input = 1; // 1 is YPbPr, 2 is YC, 3 is CVBS
 
+      printf("input: ypbpr  |  manual\n");
+
     } else if (cvbs_in && !yc_in) {
       ret = i2c_write_commands(I2C_PORT, commands_cvbs_input, 4);
       if (ret < 0)
@@ -292,6 +295,8 @@ int main() {
       autocycle = 0;
       current_input = 3; // 1 is YPbPr, 2 is YC, 3 is CVBS
 
+      printf("input: cvbs   |  manual\n");
+
     } else if (!cvbs_in && yc_in) {
       ret = i2c_write_commands(I2C_PORT, commands_yc_input, 4);
       if (ret < 0)
@@ -299,6 +304,8 @@ int main() {
 
       autocycle = 0;
       current_input = 2; // 1 is YPbPr, 2 is YC, 3 is CVBS
+
+      printf("input: yc     |  manual\n");
 
     } else {
       autocycle = 1;
