@@ -28,8 +28,8 @@
 //    0x42: 7280's VPP map
 //    0x2A: 7391
 #define DEVICE_SWITCH_BITS     0x42 // device address, as given above
-#define REGISTER_SWITCH_BITS   0x00 // register sub-address in that device
-#define REGISTER_DEFAULT_VALUE 0x00 // default value for that register
+#define REGISTER_SWITCH_BITS   0x5A // register sub-address in that device
+#define REGISTER_DEFAULT_VALUE 0x1A // default value for that register
 #define SWITCH_B7              14   // active low
 #define SWITCH_B6              15   // active low
 #define SWITCH_B5              16   // active low
@@ -374,15 +374,11 @@ int main() {
       return ret;
 
     // custom register
-    // if (notch_filter) {
-    //    uint8_t register_bits = ((bit7 << 7) | (bit6 << 6) | (bit5 << 5) | (bit4 << 4) | (bit3 << 3) | (bit2 << 2) | (bit1 << 1) | (bit0 << 0));
-    //    ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, register_bits);
-    // } else {
-    //    ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, REGISTER_DEFAULT_VALUE);
-    // }
-
-    // if (ret < 0)
-    //   return ret;
+    uint8_t register_bits = ((bit7 << 7) | (bit6 << 6) | (bit5 << 5) | (bit4 << 4) | (bit3 << 3) | (bit2 << 2) | (bit1 << 1) | (bit0 << 0));
+    
+    ret = i2c_write_to_device_register(I2C_PORT, DEVICE_SWITCH_BITS, REGISTER_SWITCH_BITS, register_bits);
+    if (ret < 0)
+      return ret;
 
     if (!autocycle)
       continue;
