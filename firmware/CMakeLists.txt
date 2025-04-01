@@ -32,7 +32,12 @@ pico_sdk_init()
 
 # Add executable. Default name is the project name, version 0.1
 
-add_executable(lumadoub-firmware lumadoub-firmware.c )
+add_executable(lumadoub-firmware
+  src/lumadoub-firmware.c
+  src/commands.c
+  src/defines.c
+  src/features.c
+  src/i2c.c)
 
 pico_set_program_name(lumadoub-firmware "lumadoub-firmware")
 pico_set_program_version(lumadoub-firmware "0.1")
@@ -47,8 +52,8 @@ target_link_libraries(lumadoub-firmware
 
 # Add the standard include files to the build
 target_include_directories(lumadoub-firmware PRIVATE
-  ${CMAKE_CURRENT_LIST_DIR}
-  ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
+  ${CMAKE_CURRENT_LIST_DIR}/include
+  # ${CMAKE_CURRENT_LIST_DIR}/.. # for our common lwipopts or any other standard includes, if required
 )
 
 # Add any user requested libraries
