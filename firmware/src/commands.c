@@ -40,31 +40,107 @@ const device_command_t commands_freerun_480i_60Hz_YPbPr_out[] = {
   // {0x20, 0xED, 0b00010100, 0 }, // TEST VALUE FOR RGB INPUT
 };
 
-const int commands_7184_rgb_test_length = 38; //53 stock
+const int commands_7184_rgb_test_length = 81; //53 stock
 const device_command_t commands_7184_rgb_test[] = {
   // standard commands (22 total)
-  {0x2A, 0x17, 0x02,       0 }, // Reset ADV7391
-  {0x20, 0x0F, 0x00,       10}, // Exit Power Down Mode [ADV7280A writes begin] **MANDATORY**
-  {0x20, 0x02, 0b00010100, 0 }, // --was 0x04, gonna heck around with manual-- Force standard to NTSC-M  --Changed from 0x54 (force ntsc m) to 0x14 (autodetect) ---changed again to 0x04 to set to non-pedestal input
-  {0x20, 0x51, 0xC4,       0 }, // Evaluate horizontal lock using fewer lines
-  {0x20, 0x80, 0x51,       0 }, // ADI Required Write       ***Affects reserved bits for ACE. Consider experimenting with disabling*** ***CONSIDER SETTING TO 0X00. THIS IS CONTRAST BOOST, ACE)***
-  {0x20, 0x81, 0x51,       0 }, // ADI Required Write       ***Undocumented, within ACE section. Consider experimenting with disabling***
-  {0x20, 0x82, 0x68,       0 }, // ADI Required Write       ***Affects Pal. Says "Not Applicable for NTSC"***
-  {0x20, 0x17, 0x41,       0 }, // Enable SH1               ***This sets a non-standard "C filter" (SH1), may only affect composite***
-  {0x20, 0x03, 0x0C,       0 }, // Enable Pixel & Sync output drivers (they are tri-state by default) **MANDATORY**
-  {0x20, 0x6b, 0b00000001, 0 }, // Forces Vsync output on VS/FIELD/SFL pin
-  {0x20, 0x04, 0b01010111, 0 }, // --was 0x0F-- Power-up INTRQ, HS & VS pads  ---Sets to BT.656-3 (not-4), some reserved bits, Forces HS and VS/FIELD/SFL pins on, enables SLF, Full range rather than limited. Also affects Betacam voltage
-  {0x20, 0x13, 0x00,       0 }, // Enable ADV7280A for 28_63636MHz crystal (undocumented?)
-  {0x20, 0x1D, 0x40,       0 }, // Enable LLC output driver (pin is tristate by default) **MANDATORY**
-  {0x20, 0xFD, 0x84,       0 }, // Set VPP Map [ADV7280A writes finished]
-  {0x20, 0x0E, 0x20,       0 }, // Enter Interrupt/VDP Sub map
-  {0x20, 0x43, 0x00,       0 }, // The Great LoopJ Purge
-  {0x20, 0x47, 0x00,       0 }, // The Great LoopJ Purge
-  {0x20, 0x4b, 0x00,       0 }, // The Great LoopJ Purge
-  {0x20, 0x40, 0b01000111, 0 }, // --was 0xD1-- Set interrupt period to be 63 XTAL periods; drive low when active // TODO: reset to open-drain mode? ---changing for loopj---
-  {0x20, 0x4C, 0x04,       0 }, // Enable HLock interrupt  ---changing for loopj---
-  {0x20, 0x48, 0x00,       0 }, // Enable field change interrupt for testing
-  {0x20, 0x0E, 0x00,       0 }, // Leave Interrupt/VDP Sub map, return to sub map 1
+  {0x2A, 0x17, 0x02,       0}, // Reset ADV7391
+  {0x20, 0x0F, 0b01001111, 0}, // Exit Power Down Mode [ADV7280A writes begin] **MANDATORY**
+  {0x20, 0x02, 0b00010100, 0}, // --was 0x04, gonna heck around with manual-- Force standard to NTSC-M  --Changed from 0x54 (force ntsc m) to 0x14 (autodetect) ---changed again to 0x04 to set to non-pedestal input
+  {0x20, 0x51, 0xC4,       0}, // Evaluate horizontal lock using fewer lines
+  {0x20, 0x80, 0x51,       0}, // ADI Required Write       ***Affects reserved bits for ACE. Consider experimenting with disabling*** ***CONSIDER SETTING TO 0X00. THIS IS CONTRAST BOOST, ACE)***
+  {0x20, 0x81, 0x51,       0}, // ADI Required Write       ***Undocumented, within ACE section. Consider experimenting with disabling***
+  {0x20, 0x82, 0x68,       0}, // ADI Required Write       ***Affects Pal. Says "Not Applicable for NTSC"***
+  {0x20, 0x17, 0x41,       0}, // Enable SH1               ***This sets a non-standard "C filter" (SH1), may only affect composite***
+  {0x20, 0x03, 0x0C,       0}, // Enable Pixel & Sync output drivers (they are tri-state by default) **MANDATORY**
+  {0x20, 0x6b, 0b00000001, 0}, // Forces Vsync output on VS/FIELD/SFL pin
+  {0x20, 0x04, 0b01010111, 0}, // --was 0x0F-- Power-up INTRQ, HS & VS pads  ---Sets to BT.656-3 (not-4), some reserved bits, Forces HS and VS/FIELD/SFL pins on, enables SLF, Full range rather than limited. Also affects Betacam voltage
+  {0x20, 0x13, 0x00,       0}, // Enable ADV7280A for 28_63636MHz crystal (undocumented?)
+  {0x20, 0x1D, 0x40,       0}, // Enable LLC output driver (pin is tristate by default) **MANDATORY**
+  {0x20, 0xFD, 0x84,       0}, // Set VPP Map [ADV7280A writes finished]
+  {0x20, 0x0E, 0x20,       0}, // Enter Interrupt/VDP Sub map
+  {0x20, 0x43, 0x00,       0}, // The Great LoopJ Purge
+  {0x20, 0x47, 0x00,       0}, // The Great LoopJ Purge
+  {0x20, 0x4b, 0x00,       0}, // The Great LoopJ Purge
+  {0x20, 0x40, 0b01000111, 0}, // --was 0xD1-- Set interrupt period to be 63 XTAL periods; drive low when active // TODO: reset to open-drain mode? ---changing for loopj---
+  {0x20, 0x4C, 0x04,       0}, // Enable HLock interrupt  ---changing for loopj---
+  {0x20, 0x48, 0x00,       0}, // Enable field change interrupt for testing
+  {0x20, 0x0E, 0x00,       0}, // Leave Interrupt/VDP Sub map, return to sub map 1
+
+  //Lets see if we can activate the component processor
+  // {0x20, 0x05, 0b00000001, 0 },
+  // {0x20, 0x06, 0b00001010, 0 },
+  // {0x20, 0x6B, 0b11000011, 0 },
+  // {0x20, 0xBF, 0b00000011, 0 },
+
+  //Default Values of 7181C
+  //Completely Undocumented (that isnt in CSC or the middle of read only stuff)
+  {0x20, 0x1A, 0b00000000, 0},
+  {0x20, 0x1B, 0b00000000, 0},
+  {0x20, 0x1C, 0b00000000, 0},
+  {0x20, 0x1D, 0b01000111, 0},
+
+  {0x20, 0x20, 0b00100000, 0}, //5
+  {0x20, 0x21, 0b00000101, 0},
+  {0x20, 0x22, 0b00000101, 0},
+  {0x20, 0x23, 0b11000000, 0},
+  {0x20, 0x24, 0b00010101, 0},
+
+  {0x20, 0x28, 0b00010000, 0}, //10
+  {0x20, 0x29, 0b00000101, 0},
+  {0x20, 0x2A, 0b00100000, 0},
+
+  {0x20, 0x3E, 0b01101010, 0},
+  {0x20, 0x3F, 0b10100000, 0},
+
+  {0x20, 0x47, 0b10111110, 0}, //15
+
+  {0x20, 0x8B, 0b00000001, 0},
+
+  {0x20, 0x8D, 0b00010000, 0},
+  {0x20, 0x8E, 0b01010000, 0},
+
+  {0x20, 0x8B, 0b01000000, 0},
+
+  {0x20, 0xBB, 0b00001100, 0}, //20
+  {0x20, 0xBC, 0b00001111, 0},
+  {0x20, 0xBD, 0b11111111, 0},
+
+  {0x20, 0xCC, 0b01011011, 0}, //23
+
+  // Undocumented Colorspace Converter stuff
+  {0x20, 0x52, 0b10000000, 0},
+  {0x20, 0x53, 0x00,       0},
+  {0x20, 0x54, 0x00,       0},
+
+  //{0x20, 0x56, 0b11110101, 0 }, //this command breaks it, line doubling gives green lines
+  {0x20, 0x57, 0x08,       0}, //5
+
+  {0x20, 0x5A, 0x00,       0},
+  {0x20, 0x5B, 0x00,       0},
+  {0x20, 0x5C, 0x01,       0},
+  {0x20, 0x5D, 0x00,       0},
+  {0x20, 0x5E, 0x00,       0}, //10
+  {0x20, 0x5F, 0x00,       0},
+  {0x20, 0x60, 0x00,       0},
+
+  {0x20, 0x63, 0x00,       0},
+  {0x20, 0x64, 0x00,       0},
+  //{0x20, 0x65, 0b00000000, 0 }, //15 -- This line appears to break sync,
+  //{0x20, 0x66, 0b00000000, 0 }, //This line breaks sync
+
+  {0x20, 0x6B, 0xC0,       0},
+  //{0x20, 0x6C, 0x00,       0 }, //18 -- This line breaks picture
+
+  //Reserved
+  {0x20, 0x14, 0x12,       0},
+
+  {0x20, 0x3D, 0xA2,       0},
+
+  {0x20, 0x4C, 0x10,       0},
+
+  {0x20, 0x54, 0x00,       0},
+
+  {0x20, 0x91, 0x81,       0},
 
   //Input command (1 total)
   // {0x20, 0x00, 0b00000000, 0 }, // INSEL = YPbPr, Y=Ain1, Pb=Ain2, Pr=Ain3 (broke until I used the correct command lenght number)
@@ -93,20 +169,20 @@ const device_command_t commands_7184_rgb_test[] = {
   // {0x20, 0xC5, 0x00,       0 }, //Clamp averaging, says clamp mode 0 for fb hc based, non-reset values
 
   //Fast Blank Control Registers (5 total)
-  {0x20, 0xED, 0b00010100, 0 }, //startup script says 0xC4 --this is SUPPOSED to force on RGB--
-  {0x20, 0xEE, 0b00000000, 0 }, //Auto CSC enabled (colorspace converter) rather than manual
-  {0x20, 0xEF, 0b01000000, 0 }, //
-  {0x20, 0xF0, 0b01000100, 0 }, //
-  {0x20, 0xF1, 0b00001101, 0 }, //
+  {0x20, 0xED, 0b00010100, 0}, //startup script says 0xC4 --this is SUPPOSED to force on RGB--
+  {0x20, 0xEE, 0b00000000, 0}, //Auto CSC enabled (colorspace converter) rather than manual
+  {0x20, 0xEF, 0b01000000, 0}, //
+  {0x20, 0xF0, 0b01000100, 0}, //
+  {0x20, 0xF1, 0b00001101, 0}, //
 
   // {0x20, 0xF9, 0x03,       0 }, //24
-  {0x20, 0xF2, 0b00000010, 0 }, //undocumented yolo flippin bits
+  {0x20, 0xF2, 0b00000010, 0}, //undocumented yolo flippin bits
   // {0x20, 0x69, 0b01000000},
 
   //Manual mux cowabunga (3 total)
-  // {0x20, 0xC3, 0b00110001, 0 }, //manual mux AIN3->ADC1, AIN1->ADC0
-  // {0x20, 0xC4, 0b11000010, 0 }, //manual mux enable, manual mux AIN2->ADC2
-  // {0x20, 0xF3, 0b01001010, 0 }, //AA filters yuck, Manual mux AIN4->ADC3
+  {0x20, 0xC3, 0b00110001, 0}, //manual mux AIN3->ADC1, AIN1->ADC0
+  {0x20, 0xC4, 0b11000010, 0}, //manual mux enable, manual mux AIN2->ADC2
+  {0x20, 0xF3, 0b01001010, 0}, //AA filters yuck, Manual mux AIN4->ADC3
 
   //Extended output control yolo
   // {0x20, 0x05, 0b00000000, 0 },
@@ -140,47 +216,63 @@ const device_command_t commands_7184_rgb_test[] = {
   // {0x20, 0x0E, 0x00,       0 }, // ADI Recommended Write, Leave the secret map
 
   // encoder commands (9 total)
-  {0x2A, 0x02, 0x10,       0 }, // RGB output enabled; RsGsBs output sync enabled
-  {0x2A, 0x82, 0xC9,       0 }, // pixel data valid; RGB out; PbPr SSAF on; step control on; ped on
-  {0x2A, 0x00, 0x1C,       0 }, // Power up DACs and PLL [Encoder writes begin] --The bit toggled between these two (bit 0) is marked "reserved"--
-  {0x2A, 0x01, 0x00,       0 }, // Set Encoder to SD mode                       --These 3 bits enable SD input on the ADV7391--
-  {0x2A, 0x30, 0x00,       0 }, // Reset value for ED register                  --This resets ED/HD mode register 1 to default, which is External Hsync and Vsync field inputs--
-  {0x2A, 0x31, 0x00,       0 }, // Reset value for ED register                  --Turns "ED/HD pixel data valid" off (default)
-  {0x2A, 0x80, 0x00,       0 }, // SSAF Luma filter enabled, NTSC mode (TODO: same as reset value, so not needed here?)
-  {0x2A, 0x87, 0x20,       0 }, // PAL/NTSC autodetect mode enabled
-  {0x2A, 0x88, 0x00,       0 }, // 8 bit input enabled, SD noninterlaced mode off
+  {0x2A, 0x02, 0x10,       0}, // RGB output enabled; RsGsBs output sync enabled
+  {0x2A, 0x82, 0xC9,       0}, // pixel data valid; RGB out; PbPr SSAF on; step control on; ped on
+  {0x2A, 0x00, 0x1C,       0}, // Power up DACs and PLL [Encoder writes begin] --The bit toggled between these two (bit 0) is marked "reserved"--
+  {0x2A, 0x01, 0x00,       0}, // Set Encoder to SD mode                       --These 3 bits enable SD input on the ADV7391--
+  {0x2A, 0x30, 0x00,       0}, // Reset value for ED register                  --This resets ED/HD mode register 1 to default, which is External Hsync and Vsync field inputs--
+  {0x2A, 0x31, 0x00,       0}, // Reset value for ED register                  --Turns "ED/HD pixel data valid" off (default)
+  {0x2A, 0x80, 0x00,       0}, // SSAF Luma filter enabled, NTSC mode (TODO: same as reset value, so not needed here?)
+  {0x2A, 0x87, 0x20,       0}, // PAL/NTSC autodetect mode enabled
+  {0x2A, 0x88, 0x00,       0}, // 8 bit input enabled, SD noninterlaced mode off
 };
 
-const int commands_cvbs_input_length = 4;
+//need to remove free run force commands once free run off command works
+const int commands_cvbs_input_length = 2;
 const device_command_t commands_cvbs_input[] = {
-  {0x20, 0x0C, 0x34, 0}, // Force disable free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
-  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D***
+  //{0x20, 0x0C, 0x34, 0}, // Force disable free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  //{0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D***
   {0x20, 0x52, 0xCD, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
   {0x20, 0x00, 0x03, 0}, // CVBS in on Ain4                   ***Bits 7, 6, and 5 are blank and undocumented. Investigate?***
   //{0x20, 0x00, 0b00000000, 0}, // TEST VALUE FOR RGB INPUT **TESTING CHANGE BACK TO 0x00 if you are reading this**
 };
 
-const int commands_yc_input_length = 4;
+//need to remove free run force commands once free run off command works
+const int commands_yc_input_length = 2;
 const device_command_t commands_yc_input[] = {
-  {0x20, 0x0C, 0x34, 0}, // Force disable free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
-  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D [default settings]***
+  //{0x20, 0x0C, 0x34, 0}, // Force disable free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  //{0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D [default settings]***
   {0x20, 0x53, 0xCE, 0}, // AFE IBIAS                         ***UNDOCUMENTED. This is never set back. Can we delete or make permanent?***
   {0x20, 0x00, 0x09, 0}, // INSEL = YC, Y - Ain3, C - Ain4
+
+  //Extra Test Command(s) to try to get undocumented auto cvbs/yc working, to be continued
+  //{0x20, 0x69, 0b00000011, 0}, //This should enable auto cvbs/yc
+
+  //Manual Mux
+  //{0x20, 0xC4, 0b10000011, 0}, //First bit enables manual muxing, last 4 control MUX_2
+  //{0x20, 0xC3, 0b00100001, 0}, //First 2 contrl MUX_1, last 4 control MUX_0
 };
 
-const int commands_ypbpr_input_length = 4;
+//need to remove free run force commands once free run off command works
+const int commands_ypbpr_input_length = 2;
 const device_command_t commands_ypbpr_input[] = {
-  {0x20, 0x0C, 0x34, 0}, // Force disable free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
-  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D [default settings]***
+  //{0x20, 0x0C, 0x34, 0}, // Force disable free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  //{0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D [default settings]***
   {0x20, 0x54, 0xC0, 0}, // AFE IBIAS                         ***UNDOCUMENTED. Reserved bit in Interrupt clear diagnostic register? This is never set back. Can we delete or make permanent?***
   {0x20, 0x00, 0x0C, 0}, // INSEL = YPbPr, Y=Ain1, Pb=Ain2, Pr=Ain3
 };
 
-const int commands_test_pattern_input_length = 3;
-const device_command_t commands_test_pattern_input[] = {
-  {0x20, 0x00, 0x07, 0}, // ADI Required Write [INSEL set to unconnected input]
+const int commands_test_pattern_input_on_length = 2;
+const device_command_t commands_test_pattern_input_on[] = {
+  //{0x20, 0x00, 0x07, 0}, // ADI Required Write [INSEL set to unconnected input]
   {0x20, 0x0C, 0x37, 0}, // Force Free run mode
   {0x20, 0x14, 0x11, 0}, // Set Free-run pattern to 100% color bars
+};
+
+const int commands_test_pattern_input_off_length = 2;
+const device_command_t commands_test_pattern_input_off[] = {
+  {0x20, 0x0C, 0x34, 0}, // Force disable free run mode         ***But FREE RUN Still happens when no image detected. [default settings]***
+  {0x20, 0x14, 0x10, 0}, // Deselect free run pattern         ***Sets free run pattern to single solid color. Color controlled by 0x0C & 0x0D [default settings]***
 };
 
 const int commands_rgb_output_rsgsbs_length = 2;
@@ -255,14 +347,30 @@ const device_command_t commands_vaseline_off[] = {
   {0x42, 0x5A, 0b00000010, 0}, // Disable AA filters
 };
 
-const int commands_notch_filter_on_length = 1;
+const int commands_notch_filter_on_length = 6;
 const device_command_t commands_notch_filter_on[] = {
-  {0x20, 0x38, 0b10000100, 0}, //Force notch filter
+  //{0x20, 0x38, 0b10000100, 0}, //Force notch filter, legacy line, feel free to delete
+
+  {0x20, 0x08, 0x74, 0}, //Contrast Boost
+  {0x20, 0x17, 0x47, 0}, //CVBS: SH1 Cshaping filter, SVHS5 Y shaping filter
+  {0x20, 0x18, 0x93, 0}, //YC-YPbPr: Manual Y Shaping Filter, SVHS 18
+  {0x20, 0x2C, 0x9E, 0}, //AGC Peak white algorithm off
+  {0x20, 0x38, 0x44, 0}, //NTSC Comb: 3 line to 2 line chroma, disable comb (low pass/notch enabled)
+  {0x20, 0x39, 0xB4, 0}, //PAL Comb: 5-line-5-taps to 3-lines-3-taps, fixed 3/4/5 line chroma, disables luma comb (low-pass/notch filter enabled)
+
+  //Shoutouts to Mike Chi of Retrotink for this above manual filter configuration
 };
 
-const int commands_notch_filter_off_length = 1;
+const int commands_notch_filter_off_length = 6;
 const device_command_t commands_notch_filter_off[] = {
-  {0x20, 0x38, 0b10000000, 0}, //Use automatic filter
+  //{0x20, 0x38, 0b10000000, 0}, //Use automatic filter
+
+  {0x20, 0x08, 0x80, 0}, //Unity Gain contrast
+  {0x20, 0x17, 0x01, 0}, //CVBS: Auto-Narrow Notch, default
+  {0x20, 0x18, 0x13, 0}, //YC/YPbPr: Auto Select Y Shaping Filter, default of SVHS 18, but auto overwrites
+  {0x20, 0x2C, 0xAE, 0}, //AGC Peak white algorithm On
+  {0x20, 0x38, 0x80, 0}, //NTSC Comb: 5 line to 3 line chroma, adaptive 3-line 3-tap luma
+  {0x20, 0x39, 0xC0, 0}, //PAL Comb: 5-line-5-taps to 4-line 4-taps, adaptive chroma comb, adaptive luma comb (default settings)
 };
 
 const int commands_force_240p_length = 4;
@@ -363,8 +471,12 @@ int send_command_ypbpr_input() {
   return i2c_write_commands(I2C_PORT, commands_ypbpr_input, commands_ypbpr_input_length);
 };
 
-int send_command_test_pattern_input() {
-  return i2c_write_commands(I2C_PORT, commands_test_pattern_input, commands_test_pattern_input_length);
+int send_command_test_pattern_input_on() {
+  return i2c_write_commands(I2C_PORT, commands_test_pattern_input_on, commands_test_pattern_input_on_length);
+};
+
+int send_command_test_pattern_input_off() {
+  return i2c_write_commands(I2C_PORT, commands_test_pattern_input_off, commands_test_pattern_input_off_length);
 };
 
 int send_command_rgb_output_rsgsbs() {

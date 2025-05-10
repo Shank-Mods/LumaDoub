@@ -1,11 +1,10 @@
 #include "features.h"
 
-int set_input(input_t *current_input, bool *autocycle) {
+int set_input(input_t *current_input, bool *is_autocycle_enabled, bool *autocycle) {
   int ret;
 
-  bool cvbs_in = !gpio_get(SWITCH_CVBS_IN);                 // active low
-  bool yc_in = !gpio_get(SWITCH_YC_IN);                     // active low
-  bool test_pattern_in = !gpio_get(SWITCH_TEST_PATTERN_IN); // active low
+  bool cvbs_in = !gpio_get(SWITCH_CVBS_IN); // active low
+  bool yc_in = !gpio_get(SWITCH_YC_IN);     // active low
 
   if (!cvbs_in && !yc_in) {
     ret = send_command_ypbpr_input();
@@ -13,6 +12,7 @@ int set_input(input_t *current_input, bool *autocycle) {
       return ret;
 
     *current_input = YPBPR;
+    *is_autocycle_enabled = false;
     *autocycle = false;
 
   } else if (cvbs_in && !yc_in) {
@@ -21,6 +21,7 @@ int set_input(input_t *current_input, bool *autocycle) {
       return ret;
 
     *current_input = CVBS;
+    *is_autocycle_enabled = false;
     *autocycle = false;
 
   } else if (!cvbs_in && yc_in) {
@@ -29,17 +30,11 @@ int set_input(input_t *current_input, bool *autocycle) {
       return ret;
 
     *current_input = YC;
-    *autocycle = false;
-
-  } else if (test_pattern_in) {
-    ret = send_command_test_pattern_input();
-    if (ret < 0)
-      return ret;
-
-    *current_input = TEST;
+    *is_autocycle_enabled = false;
     *autocycle = false;
 
   } else {
+    *is_autocycle_enabled = true;
     *autocycle = true;
   }
 
@@ -193,6 +188,19 @@ int set_pedestal_output() {
     ret = send_command_pedestal_output_on();
   } else {
     ret = send_command_pedestal_output_off();
+  }
+
+  return ret;
+};
+
+int set_test_pattern() {
+  int ret;
+  bool test_pattern_in = !gpio_get(SWITCH_TEST_PATTERN_IN); // active low
+
+  if (test_pattern_in) {
+    ret = send_command_test_pattern_input_on();
+  } else {
+    ret = send_command_test_pattern_input_off();
   }
 
   return ret;

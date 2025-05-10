@@ -12,7 +12,7 @@
 
 volatile bool fake_scannies = 1; // Variable to store bit state
 input_t current_input, next_input;
-volatile bool autocycle;
+volatile bool is_autocycle_enabled, autocycle; // TODO: rename autocycle to something like start_autocycling for clarity
 int error = 0; // Variable to hold error codes from interrupt handlers
 critical_section_t irq_critical_section;
 alarm_id_t switch_alarm, hlock_alarm, autocycle_alarm;
@@ -35,6 +35,9 @@ int main() {
   update_switch_settings();
   enable_interrupts();
 
+  //Cursed counter, remove this
+  int dumbcounter = 0;
+
   while (true) {
     // printf("main loop: autocycle: %d\n", autocycle);
 
@@ -48,6 +51,24 @@ int main() {
       return error;
 
     // tight_loop_contents();
+    
+    
+    //Holy shit delete this code
+    //printf("This is not good practice \n");
+    
+    if (dumbcounter == 500000){
+    uint8_t register_value;
+    int ret = i2c_read_from_device_register(I2C_PORT, 0x20, 0x10, &register_value);
+    if (ret < 0)
+      return ret;
+
+      printf("0x%02x\n", register_value);
+      dumbcounter = 0;
+    }
+
+    dumbcounter++;
+
+
   }
 
   return 0;
@@ -109,7 +130,7 @@ void update_switch_settings() {
   int ret;
 
   // input (or autocycle)
-  ret = set_input(&current_input, &autocycle);
+  ret = set_input(&current_input, &is_autocycle_enabled, &autocycle);
   if (ret < 0)
     return set_error(ret);
 
@@ -164,6 +185,11 @@ void update_switch_settings() {
 
   // pedestal output
   ret = set_pedestal_output();
+  if (ret < 0)
+    return set_error(ret);
+
+  // test pattern
+  ret = set_test_pattern();
   if (ret < 0)
     return set_error(ret);
 
@@ -352,7 +378,8 @@ void check_hlock() {
 
   // if (/*!hlock_from_main &&*/ hlock_changed)
   // autocycle = true;
-  schedule_autocycle();
+  if (is_autocycle_enabled)
+    schedule_autocycle();
 
   // schedule_hlock_interrupt_clear();
 
